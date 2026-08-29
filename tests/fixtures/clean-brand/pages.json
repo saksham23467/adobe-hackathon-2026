@@ -1,0 +1,58 @@
+{
+  "site": "cleanbrand.example",
+  "robots_file": "robots.txt",
+  "pages": [
+    {
+      "url": "https://cleanbrand.example/",
+      "file": "home.html",
+      "rendered_file": "home.html",
+      "page_class": "home",
+      "status": 200,
+      "headers": { "content-type": "text/html; charset=utf-8" }
+    },
+    {
+      "url": "https://cleanbrand.example/products/widget",
+      "file": "product.html",
+      "rendered_file": "product.html",
+      "page_class": "product",
+      "status": 200,
+      "headers": { "content-type": "text/html; charset=utf-8" }
+    },
+    {
+      "url": "https://cleanbrand.example/pricing",
+      "file": "pricing.html",
+      "rendered_file": "pricing.html",
+      "page_class": "pricing",
+      "status": 200,
+      "headers": { "content-type": "text/html; charset=utf-8" }
+    },
+    {
+      "url": "https://cleanbrand.example/about",
+      "file": "about.html",
+      "rendered_file": "about.html",
+      "page_class": "about",
+      "status": 200,
+      "headers": { "content-type": "text/html; charset=utf-8" }
+    },
+    {
+      "url": "https://cleanbrand.example/blog/post",
+      "file": "blog-post.html",
+      "rendered_file": "blog-post.html",
+      "page_class": "article",
+      "status": 200,
+      "headers": { "content-type": "text/html; charset=utf-8" }
+    }
+  ],
+  "aux": [
+    {
+      "url": "https://cleanbrand.example/robots.txt",
+      "file": "robots.txt",
+      "content_type": "text/plain"
+    },
+    {
+      "url": "https://cleanbrand.example/sitemap.xml",
+      "file": "sitemap.xml",
+      "content_type": "application/xml"
+    }
+  ]
+}

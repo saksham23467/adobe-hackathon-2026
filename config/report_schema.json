@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adobe-hackathon-2026/brand-ai-readiness-audit/report.schema.json",
+  "title": "Brand AI-Readiness Audit Report",
+  "description": "Contract for the entrypoint's audit report. The required fields are the Adobe handout floor; additional fields are permitted extensions.",
+  "type": "object",
+  "required": ["site", "audited_at", "summary", "findings"],
+  "additionalProperties": true,
+  "properties": {
+    "site": { "type": "string", "minLength": 1 },
+    "audited_at": { "type": "string", "minLength": 1 },
+    "executive_summary": { "type": "string" },
+    "overall_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "overall_grade": { "type": "string" },
+    "discoverability_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "engagement_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "confidence_summary": { "type": "object", "additionalProperties": true },
+    "top_priorities": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+    "proactive_opportunities": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+    "crawl_summary": { "type": "object", "additionalProperties": true },
+    "coverage_summary": { "type": "object", "additionalProperties": true },
+    "reading_guide": { "type": "object", "additionalProperties": true },
+    "summary": {
+      "type": "object",
+      "required": ["total_findings", "critical", "high", "medium"],
+      "additionalProperties": true,
+      "properties": {
+        "total_findings": { "type": "integer", "minimum": 0 },
+        "critical": { "type": "integer", "minimum": 0 },
+        "high": { "type": "integer", "minimum": 0 },
+        "medium": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "beyond_defect_recommendations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/suggested_action" }
+    },
+    "coverage": { "type": "object", "additionalProperties": true },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["check_id", "reason"],
+        "properties": {
+          "check_id": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "meta": { "type": "object", "additionalProperties": true }
+  },
+  "$defs": {
+    "severity": { "enum": ["critical", "high", "medium"] },
+    "suggested_action": {
+      "type": "object",
+      "required": ["summary", "priority"],
+      "additionalProperties": true,
+      "properties": {
+        "summary": { "type": "string", "minLength": 1 },
+        "priority": { "$ref": "#/$defs/severity" },
+        "steps": { "type": "array", "items": { "type": "string" } },
+        "patch": { "type": ["string", "null"] },
+        "effort": { "enum": ["low", "medium", "high"] },
+        "expected_effect": { "type": "string" },
+        "implementation": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "required": ["id", "title", "severity", "evidence", "suggested_action"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "check_id": { "type": "string" },
+        "concern": { "type": "string" },
+        "mechanism": { "type": "string" },
+        "category": { "type": "string" },
+        "title": { "type": "string", "minLength": 1 },
+        "severity": { "$ref": "#/$defs/severity" },
+        "confidence": { "enum": ["high", "medium", "low"] },
+        "contested": { "type": "boolean" },
+        "affected_urls": { "type": "array", "items": { "type": "string" } },
+        "evidence_type": { "type": "string" },
+        "inferred_problem": { "type": "string" },
+        "why_it_matters_to_ai": { "type": "string" },
+        "impact": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "level": { "enum": ["high", "medium", "low"] },
+            "axis": { "type": "string" },
+            "expected_effect": { "type": "string" }
+          }
+        },
+        "evidence": {
+          "description": "Handout floor is a string. A structured object is also accepted internally.",
+          "oneOf": [
+            { "type": "string", "minLength": 1 },
+            {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "sentence": { "type": "string" },
+                "observed_fact": { "type": "string" },
+                "measurement": { "type": "string" },
+                "basis": { "type": "string" },
+                "method": { "type": "string" },
+                "scope": { "type": "string" },
+                "metric": { "type": "object" },
+                "artifacts": { "type": "array" }
+              }
+            }
+          ]
+        },
+        "evidence_detail": { "type": "object", "additionalProperties": true },
+        "suggested_action": { "$ref": "#/$defs/suggested_action" },
+        "sources": { "type": "array", "items": { "type": "object" } },
+        "related_findings": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

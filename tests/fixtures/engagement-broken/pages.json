@@ -1,0 +1,45 @@
+{
+  "site": "brokenshop.example",
+  "pages": [
+    {
+      "url": "https://brokenshop.example/",
+      "file": "home.html",
+      "rendered_file": "home.html",
+      "page_class": "home",
+      "status": 200,
+      "headers": { "content-type": "text/html; charset=utf-8" }
+    },
+    {
+      "url": "https://brokenshop.example/about",
+      "file": "about.html",
+      "rendered_file": "about.html",
+      "page_class": "about",
+      "status": 200,
+      "headers": { "content-type": "text/html; charset=utf-8" }
+    },
+    {
+      "url": "https://brokenshop.example/product",
+      "file": "product.html",
+      "rendered_file": "product.html",
+      "page_class": "product",
+      "status": 200,
+      "headers": { "content-type": "text/html; charset=utf-8" }
+    },
+    {
+      "url": "https://brokenshop.example/contact",
+      "file": "contact.html",
+      "rendered_file": "contact.html",
+      "page_class": "contact",
+      "status": 200,
+      "headers": { "content-type": "text/html; charset=utf-8" }
+    },
+    {
+      "url": "https://brokenshop.example/terms",
+      "file": "terms.html",
+      "rendered_file": "terms.html",
+      "page_class": "other",
+      "status": 200,
+      "headers": { "content-type": "text/html; charset=utf-8" }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "site": "clearfacts.example",
+  "pages": [
+    { "url": "https://clearfacts.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home" },
+    { "url": "https://clearfacts.example/products/widget", "file": "product.html", "rendered_file": "product.html", "page_class": "product" },
+    { "url": "https://clearfacts.example/contact", "file": "contact.html", "rendered_file": "contact.html", "page_class": "other" }
+  ]
+}

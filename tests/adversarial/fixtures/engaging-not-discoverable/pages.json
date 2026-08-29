@@ -1,0 +1,19 @@
+{
+  "site": "brightpath-tutoring.example",
+  "robots_file": "robots.txt",
+  "audit_expectations": {
+    "mode": "Excellent engagement, poor discoverability",
+    "notes": "Clear orientation, consistent nav, obvious CTAs, and reachable key pages — a great human experience. But the home page ships <meta robots noindex,nofollow> (removing the entry point from indexes) and robots.txt disallows every major AI crawler, so assistants can neither reach nor cite it.",
+    "expected": ["access.ai_ua_blocked", "access.important_noindex"],
+    "ignore": ["access.global_noindex", "access.our_ua_blocked", "access.class_noindex"]
+  },
+  "pages": [
+    { "url": "https://brightpath-tutoring.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://brightpath-tutoring.example/subjects", "file": "subjects.html", "rendered_file": "subjects.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://brightpath-tutoring.example/pricing", "file": "pricing.html", "rendered_file": "pricing.html", "page_class": "pricing", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://brightpath-tutoring.example/contact", "file": "contact.html", "rendered_file": "contact.html", "page_class": "contact", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ],
+  "aux": [
+    { "url": "https://brightpath-tutoring.example/robots.txt", "file": "robots.txt", "content_type": "text/plain" }
+  ]
+}

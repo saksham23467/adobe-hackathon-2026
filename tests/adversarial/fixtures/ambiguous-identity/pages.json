@@ -1,0 +1,13 @@
+{
+  "site": "apex.example",
+  "audit_expectations": {
+    "mode": "Ambiguous entity identity (two conflicting primary orgs)",
+    "notes": "The home page declares the site's Organization as 'Apex Analytics' while the about page declares a different Organization, 'Apex Advisory Group', each with its own @id and sameAs. A machine cannot decide which entity owns the site or attribute facts correctly.",
+    "expected": ["identity.duplicate_entity"],
+    "ignore": ["identity.entity_ambiguous", "identity.sameas_broken", "identity.canonical_entity_mismatch", "identity.entity_unlinked"]
+  },
+  "pages": [
+    { "url": "https://apex.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://apex.example/about", "file": "about.html", "rendered_file": "about.html", "page_class": "about", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

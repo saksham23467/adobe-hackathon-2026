@@ -1,0 +1,12 @@
+{
+  "site": "vaguefacts.example",
+  "pages": [
+    { "url": "https://vaguefacts.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home" },
+    { "url": "https://vaguefacts.example/pricing", "file": "pricing.html", "rendered_file": "pricing.html", "page_class": "other" },
+    { "url": "https://vaguefacts.example/plans", "file": "plans-image.html", "rendered_file": "plans-image.html", "page_class": "other" },
+    { "url": "https://vaguefacts.example/products/widget", "file": "product.html", "rendered_file": "product.html", "page_class": "product" },
+    { "url": "https://vaguefacts.example/products/gadget", "file": "product-noschema.html", "rendered_file": "product-noschema.html", "page_class": "product" },
+    { "url": "https://vaguefacts.example/faq", "file": "faq.html", "rendered_file": "faq.html", "page_class": "other" },
+    { "url": "https://vaguefacts.example/hours", "file": "hours.html", "rendered_file": "hours.html", "page_class": "other" }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "site": "meridian-dispatch.example",
+  "robots_file": "robots.txt",
+  "audit_expectations": {
+    "mode": "AI assistant crawlers blocked (search still allowed)",
+    "notes": "robots.txt allows Googlebot/Bingbot but disallows GPTBot, ClaudeBot, anthropic-ai, PerplexityBot, Google-Extended, CCBot and other AI fetchers site-wide. The site is discoverable by search but invisible to AI answer engines.",
+    "expected": ["access.ai_ua_blocked"],
+    "ignore": []
+  },
+  "pages": [
+    { "url": "https://meridian-dispatch.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ],
+  "aux": [
+    { "url": "https://meridian-dispatch.example/robots.txt", "file": "robots.txt", "content_type": "text/plain" }
+  ]
+}

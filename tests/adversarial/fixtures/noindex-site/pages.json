@@ -1,0 +1,14 @@
+{
+  "site": "aster-hr.example",
+  "audit_expectations": {
+    "mode": "Site-wide noindex (staging config shipped to production)",
+    "notes": "Every page carries <meta name=\"robots\" content=\"noindex, follow\">. The content is strong, but the whole site asks every index to drop it — a classic staging directive left live.",
+    "expected": ["access.global_noindex"],
+    "ignore": ["access.important_noindex", "access.class_noindex"]
+  },
+  "pages": [
+    { "url": "https://aster-hr.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://aster-hr.example/features", "file": "features.html", "rendered_file": "features.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://aster-hr.example/pricing", "file": "pricing.html", "rendered_file": "pricing.html", "page_class": "pricing", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

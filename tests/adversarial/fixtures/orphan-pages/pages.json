@@ -1,0 +1,20 @@
+{
+  "site": "trailhead-gear.example",
+  "robots_file": "robots.txt",
+  "audit_expectations": {
+    "mode": "Orphan page (in sitemap, no internal links)",
+    "notes": "The /promo-spring landing page is listed in sitemap.xml and returns 200, but no page links to it. Link-following crawlers never reach it, so it depends entirely on the sitemap for discovery.",
+    "expected": ["access.orphan_pages"],
+    "ignore": ["access.important_page_unreachable", "access.excessive_depth"]
+  },
+  "pages": [
+    { "url": "https://trailhead-gear.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://trailhead-gear.example/shop", "file": "shop.html", "rendered_file": "shop.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://trailhead-gear.example/about", "file": "about.html", "rendered_file": "about.html", "page_class": "about", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://trailhead-gear.example/promo-spring", "file": "promo-spring.html", "rendered_file": "promo-spring.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ],
+  "aux": [
+    { "url": "https://trailhead-gear.example/robots.txt", "file": "robots.txt", "content_type": "text/plain" },
+    { "url": "https://trailhead-gear.example/sitemap.xml", "file": "sitemap.xml", "content_type": "application/xml" }
+  ]
+}

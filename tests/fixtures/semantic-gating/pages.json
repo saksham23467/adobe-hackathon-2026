@@ -1,0 +1,20 @@
+{
+  "site": "northwind.example",
+  "pages": [
+    { "url": "https://northwind.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://northwind.example/about", "file": "about.html", "rendered_file": "about.html", "page_class": "about", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://northwind.example/campaign", "file": "campaign.html", "rendered_file": "campaign.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://northwind.example/widget", "file": "widget.html", "rendered_file": "widget.html", "page_class": "product", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://shop.northwind.example/widget", "file": "shop-widget.html", "rendered_file": "shop-widget.html", "page_class": "product", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://northwind.example/gone", "file": "gone.html", "page_class": "other", "status": 404, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://northwind.example/missing", "file": "missing.html", "page_class": "other", "status": 404, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://northwind.example/portal/secret", "file": "secret.html", "page_class": "other", "status": 403, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://northwind.example/logo.svg", "file": "logo.svg", "page_class": "other", "status": 200, "headers": { "content-type": "image/svg+xml" } },
+    { "url": "https://northwind.example/hero.jpg", "file": "hero.jpg", "page_class": "other", "status": 200, "headers": { "content-type": "image/jpeg" } },
+    { "url": "https://northwind.example/demo.mp4", "file": "demo.mp4", "page_class": "other", "status": 200, "headers": { "content-type": "video/mp4" } },
+    { "url": "https://northwind.example/brochure.pdf", "file": "brochure.pdf", "page_class": "other", "status": 200, "headers": { "content-type": "application/pdf" } },
+    { "url": "https://northwind.example/app.js", "file": "app.js", "page_class": "other", "status": 200, "headers": { "content-type": "application/javascript" } },
+    { "url": "https://northwind.example/styles.css", "file": "styles.css", "page_class": "other", "status": 200, "headers": { "content-type": "text/css" } },
+    { "url": "https://northwind.example/api/v1/status", "file": "status.json", "page_class": "other", "status": 200, "headers": { "content-type": "application/json" } }
+  ]
+}

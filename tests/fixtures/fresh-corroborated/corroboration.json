@@ -1,0 +1,11 @@
+{
+  "Northwind Tools": {
+    "matched": true,
+    "confidence": "high",
+    "label": "Northwind Tools",
+    "candidate_count": 1,
+    "prominent_candidates": 1,
+    "claims": { "founding_year": "2015" },
+    "source_url": "https://www.wikidata.org/wiki/Q123"
+  }
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Authentication — DevKit Docs</title>
+  <meta name="description" content="How DevKit API authentication works with secret and publishable keys.">
+  <link rel="canonical" href="https://devkit-docs.example/docs/authentication">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Authentication",
+    "datePublished": "2017-06-01",
+    "dateModified": "2017-08-02",
+    "author": { "@type": "Organization", "name": "DevKit" }
+  }
+  </script>
+</head>
+<body>
+  <header>
+    <nav aria-label="Primary">
+      <a href="/">Home</a>
+      <a href="/docs/getting-started">Getting Started</a>
+      <a href="/docs/authentication">Authentication</a>
+      <a href="/docs/webhooks">Webhooks</a>
+      <a href="/docs/errors">Errors</a>
+    </nav>
+  </header>
+  <main>
+    <article>
+      <h1>Authentication</h1>
+      <p>DevKit authenticates requests with API keys. Use your secret key on the server and your
+         publishable key in the browser. Never expose a secret key in client code.</p>
+      <img src="/img/keys.png" alt="The DevKit dashboard showing publishable and secret API keys">
+      <h2>Rotating keys</h2>
+      <p>Rotate keys from the dashboard at any time; old keys keep working during a grace period.</p>
+    </article>
+    <p>Next: <a href="/docs/webhooks">Webhooks</a>.</p>
+  </main>
+  <footer><p>&copy; 2026 DevKit Inc.</p></footer>
+</body>
+</html>

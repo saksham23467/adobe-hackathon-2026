@@ -1,0 +1,8 @@
+{
+  "site": "schemaexcellent.example",
+  "pages": [
+    { "url": "https://schemaexcellent.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home" },
+    { "url": "https://schemaexcellent.example/products/widget", "file": "product.html", "rendered_file": "product.html", "page_class": "product" },
+    { "url": "https://schemaexcellent.example/about", "file": "about.html", "rendered_file": "about.html", "page_class": "other" }
+  ]
+}

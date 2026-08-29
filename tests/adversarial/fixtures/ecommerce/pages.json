@@ -1,0 +1,13 @@
+{
+  "site": "shopwave.example",
+  "audit_expectations": {
+    "mode": "Ecommerce (faceted-navigation crawl trap + unattributed price)",
+    "notes": "The category page exposes a faceted filter that generates many URL permutations, each carrying a session id and pagination — an unbounded, budget-eating URL space. The best-seller product page shows a concrete price ($129.00) with no Product/Offer markup, so the price cannot be attributed to a named product entity.",
+    "expected": ["access.crawl_trap", "access.crawl_budget_risk", "fact.not_attributed_to_entity"],
+    "ignore": ["access.duplicate_url_variants", "access.url_normalization", "access.pagination_issue", "access.orphan_pages", "identity.product_schema_missing", "access.broken_internal_links"]
+  },
+  "pages": [
+    { "url": "https://shopwave.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://shopwave.example/p/harbor-analog-watch", "file": "product.html", "rendered_file": "product.html", "page_class": "product", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

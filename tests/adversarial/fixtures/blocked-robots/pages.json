@@ -1,0 +1,16 @@
+{
+  "site": "lumen-solar.example",
+  "robots_file": "robots.txt",
+  "audit_expectations": {
+    "mode": "Blocked by robots.txt (Disallow: / for all agents)",
+    "notes": "A well-built site left with a staging robots.txt: 'User-agent: * / Disallow: /' blocks every compliant crawler — search and AI alike — from the entire site. The page content is otherwise excellent.",
+    "expected": ["access.global_disallow_all"],
+    "ignore": ["access.ai_ua_blocked", "access.our_ua_blocked"]
+  },
+  "pages": [
+    { "url": "https://lumen-solar.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ],
+  "aux": [
+    { "url": "https://lumen-solar.example/robots.txt", "file": "robots.txt", "content_type": "text/plain" }
+  ]
+}

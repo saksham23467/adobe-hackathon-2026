@@ -1,0 +1,15 @@
+{
+  "site": "broken.example",
+  "robots_file": "robots.txt",
+  "pages": [
+    { "url": "https://broken.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://broken.example/product-ok", "file": "product-ok.html", "rendered_file": "product-ok.html", "page_class": "product", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://broken.example/about", "file": "about.html", "rendered_file": "about.html", "page_class": "about", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://broken.example/missing", "file": "missing.html", "page_class": "other", "status": 404, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://broken.example/orphan", "file": "orphan.html", "rendered_file": "orphan.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ],
+  "aux": [
+    { "url": "https://broken.example/robots.txt", "file": "robots.txt", "content_type": "text/plain" },
+    { "url": "https://broken.example/sitemap.xml", "file": "sitemap.xml", "content_type": "application/xml" }
+  ]
+}

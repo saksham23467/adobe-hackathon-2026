@@ -1,0 +1,28 @@
+{
+  "user_agent": "brand-ai-readiness-audit/1.0 (+read-only audit bot)",
+  "max_pages": 40,
+  "max_render": 8,
+  "max_external_calls": 8,
+  "max_bytes_per_page": 3000000,
+  "max_concurrency": 4,
+  "request_timeout_s": 10.0,
+  "min_delay_s": 0.5,
+  "total_budget_s": 270.0,
+  "respect_robots": true,
+  "sample_k_per_class": 3,
+  "sample_max_total": 30,
+  "crawl": {
+    "max_pages": 40,
+    "max_depth": 5,
+    "max_redirects": 5,
+    "deadline_s": 120,
+    "sitemap_fetch_cap": 5
+  },
+  "stage_budgets_s": {
+    "discovery": 30,
+    "http_sample": 40,
+    "render_sample": 120,
+    "external": 45,
+    "compile": 20
+  }
+}

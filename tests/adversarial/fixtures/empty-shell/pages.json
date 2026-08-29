@@ -1,0 +1,12 @@
+{
+  "site": "vertex-studio.example",
+  "audit_expectations": {
+    "mode": "Empty HTML shell (SPA that never hydrates for machines)",
+    "notes": "The raw response is a bare #root mount with one module script and no content, and no headless renderer is available. A no-JS machine reads a contentless, unorientable page. NOTE: render.empty_initial_shell is intentionally NOT expected here — without a rendered DOM the render skill correctly degrades to a logged limitation rather than guessing, so the surviving true signal is the engagement/orientation failure.",
+    "expected": ["engagement.no_orientation"],
+    "ignore": ["render.empty_initial_shell", "render.primary_content_js_only", "render.class_js_gap", "render.headings_js_only", "engagement.no_ia_navigation", "engagement.dead_end_page", "engagement.content_hidden_interaction", "fact.no_quotable_value_prop", "fact.facts_locked_in_non_text"]
+  },
+    "pages": [
+    { "url": "https://vertex-studio.example/", "file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

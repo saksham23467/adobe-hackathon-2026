@@ -1,0 +1,504 @@
+{
+  "fixtures": [
+    {
+      "fixture": "ambiguous-identity",
+      "mode": "Ambiguous entity identity (two conflicting primary orgs)",
+      "expected": [
+        "identity.duplicate_entity"
+      ],
+      "reported": [
+        "identity.duplicate_entity"
+      ],
+      "tp": [
+        "identity.duplicate_entity"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 62
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "blocked-ai-crawlers",
+      "mode": "AI assistant crawlers blocked (search still allowed)",
+      "expected": [
+        "access.ai_ua_blocked"
+      ],
+      "reported": [
+        "access.ai_ua_blocked"
+      ],
+      "tp": [
+        "access.ai_ua_blocked"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 66
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "blocked-robots",
+      "mode": "Blocked by robots.txt (Disallow: / for all agents)",
+      "expected": [
+        "access.global_disallow_all"
+      ],
+      "reported": [
+        "access.global_disallow_all"
+      ],
+      "tp": [
+        "access.global_disallow_all"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 64
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "broken-sitemap",
+      "mode": "Broken sitemap (served but malformed XML)",
+      "expected": [
+        "access.sitemap_invalid"
+      ],
+      "reported": [
+        "access.sitemap_invalid"
+      ],
+      "tp": [
+        "access.sitemap_invalid"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 66
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "conflicting-canonical",
+      "mode": "Conflicting canonical tags",
+      "expected": [
+        "access.canonical_inconsistent",
+        "access.canonical_to_error"
+      ],
+      "reported": [
+        "access.broken_internal_links",
+        "access.canonical_inconsistent",
+        "access.canonical_to_error"
+      ],
+      "tp": [
+        "access.canonical_inconsistent",
+        "access.canonical_to_error"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 2,
+        "FN": 0,
+        "FP": 0,
+        "TN": 64
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "contradictory-company-info",
+      "mode": "Contradictory company information (founding year)",
+      "expected": [
+        "freshness.self_contradiction"
+      ],
+      "reported": [
+        "freshness.self_contradiction"
+      ],
+      "tp": [
+        "freshness.self_contradiction"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 66
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "discoverable-not-engaging",
+      "mode": "Excellent discoverability, poor engagement",
+      "expected": [
+        "engagement.dead_end_page",
+        "engagement.inconsistent_naming",
+        "engagement.unclear_navigation"
+      ],
+      "reported": [
+        "engagement.dead_end_page",
+        "engagement.inconsistent_naming",
+        "engagement.unclear_navigation"
+      ],
+      "tp": [
+        "engagement.dead_end_page",
+        "engagement.inconsistent_naming",
+        "engagement.unclear_navigation"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 3,
+        "FN": 0,
+        "FP": 0,
+        "TN": 57
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "docs-heavy",
+      "mode": "Documentation-heavy site (old but evergreen docs \u2014 precision test)",
+      "expected": [],
+      "reported": [],
+      "tp": [],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 0,
+        "FN": 0,
+        "FP": 0,
+        "TN": 66
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "ecommerce",
+      "mode": "Ecommerce (faceted-navigation crawl trap + unattributed price)",
+      "expected": [
+        "access.crawl_budget_risk",
+        "access.crawl_trap",
+        "fact.not_attributed_to_entity"
+      ],
+      "reported": [
+        "access.crawl_budget_risk",
+        "access.crawl_trap",
+        "fact.not_attributed_to_entity"
+      ],
+      "tp": [
+        "access.crawl_budget_risk",
+        "access.crawl_trap",
+        "fact.not_attributed_to_entity"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 3,
+        "FN": 0,
+        "FP": 0,
+        "TN": 58
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "empty-shell",
+      "mode": "Empty HTML shell (SPA that never hydrates for machines)",
+      "expected": [
+        "engagement.no_orientation"
+      ],
+      "reported": [
+        "engagement.no_ia_navigation",
+        "engagement.no_orientation"
+      ],
+      "tp": [
+        "engagement.no_orientation"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 57
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "engaging-not-discoverable",
+      "mode": "Excellent engagement, poor discoverability",
+      "expected": [
+        "access.ai_ua_blocked",
+        "access.important_noindex"
+      ],
+      "reported": [
+        "access.ai_ua_blocked",
+        "access.important_noindex"
+      ],
+      "tp": [
+        "access.ai_ua_blocked",
+        "access.important_noindex"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 2,
+        "FN": 0,
+        "FP": 0,
+        "TN": 62
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "facts-in-images",
+      "mode": "Important facts only in images",
+      "expected": [
+        "fact.informational_images_no_alt"
+      ],
+      "reported": [
+        "fact.informational_images_no_alt",
+        "render.text_as_image"
+      ],
+      "tp": [
+        "fact.informational_images_no_alt"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 63
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "js-only-app",
+      "mode": "JS-only website (client-side rendered SPA)",
+      "expected": [
+        "render.empty_initial_shell"
+      ],
+      "reported": [
+        "render.empty_initial_shell"
+      ],
+      "tp": [
+        "render.empty_initial_shell"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 61
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "local-business",
+      "mode": "Local business (thin but correct \u2014 precision test)",
+      "expected": [],
+      "reported": [],
+      "tp": [],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 0,
+        "FN": 0,
+        "FP": 0,
+        "TN": 67
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "misleading-structured-data",
+      "mode": "Misleading structured data",
+      "expected": [
+        "fact.contradictory_values",
+        "identity.schema_contradiction"
+      ],
+      "reported": [
+        "fact.contradictory_values",
+        "identity.schema_contradiction",
+        "identity.schema_visible_mismatch"
+      ],
+      "tp": [
+        "fact.contradictory_values",
+        "identity.schema_contradiction"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 2,
+        "FN": 0,
+        "FP": 0,
+        "TN": 64
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "missing-canonical",
+      "mode": "Missing canonical (same content at multiple URL forms)",
+      "expected": [
+        "access.duplicate_url_variants"
+      ],
+      "reported": [
+        "access.duplicate_url_variants"
+      ],
+      "tp": [
+        "access.duplicate_url_variants"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 64
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "noindex-site",
+      "mode": "Site-wide noindex (staging config shipped to production)",
+      "expected": [
+        "access.global_noindex"
+      ],
+      "reported": [
+        "access.global_noindex"
+      ],
+      "tp": [
+        "access.global_noindex"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 64
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "orphan-pages",
+      "mode": "Orphan page (in sitemap, no internal links)",
+      "expected": [
+        "access.orphan_pages"
+      ],
+      "reported": [
+        "access.orphan_pages"
+      ],
+      "tp": [
+        "access.orphan_pages"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 64
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "perfect-static",
+      "mode": "Perfect static website",
+      "expected": [],
+      "reported": [],
+      "tp": [],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 0,
+        "FN": 0,
+        "FP": 0,
+        "TN": 67
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "saas",
+      "mode": "SaaS (pricing stated only vaguely)",
+      "expected": [
+        "fact.ambiguous_value"
+      ],
+      "reported": [
+        "fact.ambiguous_value"
+      ],
+      "tp": [
+        "fact.ambiguous_value"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 63
+      },
+      "unknown_ids": [],
+      "error": ""
+    },
+    {
+      "fixture": "stale-info",
+      "mode": "Stale information (content not updated in years)",
+      "expected": [
+        "freshness.content_stale"
+      ],
+      "reported": [
+        "freshness.content_stale"
+      ],
+      "tp": [
+        "freshness.content_stale"
+      ],
+      "fn": [],
+      "fp": [],
+      "counts": {
+        "TP": 1,
+        "FN": 0,
+        "FP": 0,
+        "TN": 66
+      },
+      "unknown_ids": [],
+      "error": ""
+    }
+  ],
+  "aggregate": {
+    "TP": 25,
+    "FP": 0,
+    "FN": 0,
+    "TN": 1331,
+    "precision": 1.0,
+    "recall": 1.0,
+    "fp_rate": 0.0,
+    "fn_rate": 0.0
+  }
+}

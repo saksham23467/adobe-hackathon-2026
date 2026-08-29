@@ -1,0 +1,13 @@
+{
+  "site": "greenleaf-journal.example",
+  "audit_expectations": {
+    "mode": "Stale information (content not updated in years)",
+    "notes": "The flagship guide carries datePublished/dateModified in 2016 and nothing on the site is newer. A reader or assistant cannot tell whether the advice still reflects current practice. (Contrast with the docs-heavy fixture, where old dates on evergreen docs are correctly NOT flagged.)",
+    "expected": ["freshness.content_stale"],
+    "ignore": []
+  },
+  "pages": [
+    { "url": "https://greenleaf-journal.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://greenleaf-journal.example/guides/raised-beds", "file": "guide.html", "rendered_file": "guide.html", "page_class": "article", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

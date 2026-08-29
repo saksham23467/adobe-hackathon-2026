@@ -1,0 +1,6 @@
+{
+  "site": "northwind.example",
+  "pages": [
+    { "url": "https://northwind.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home" }
+  ]
+}

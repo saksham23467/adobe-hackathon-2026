@@ -1,0 +1,15 @@
+{
+  "site": "harbor-goods.example",
+  "audit_expectations": {
+    "mode": "Conflicting canonical tags",
+    "notes": "product-a canonicalizes to /product-old, which returns 404 (canonical-to-error). product-b canonicalizes to a different host (cdn.othernetwork.example). Both mislead indexers about which URL is authoritative. The delisted /product-old is also linked from the home page.",
+    "expected": ["access.canonical_to_error", "access.canonical_inconsistent"],
+    "ignore": ["access.broken_internal_links"]
+  },
+  "pages": [
+    { "url": "https://harbor-goods.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://harbor-goods.example/product-a", "file": "product-a.html", "rendered_file": "product-a.html", "page_class": "product", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://harbor-goods.example/product-b", "file": "product-b.html", "rendered_file": "product-b.html", "page_class": "product", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://harbor-goods.example/product-old", "file": "product-old.html", "page_class": "product", "status": 404, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

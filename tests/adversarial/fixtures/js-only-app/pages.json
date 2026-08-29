@@ -1,0 +1,12 @@
+{
+  "site": "nimbus-analytics.example",
+  "audit_expectations": {
+    "mode": "JS-only website (client-side rendered SPA)",
+    "notes": "Initial HTML ships chrome + an empty #app mount and three bundles; all primary content and JSON-LD appear only in the rendered DOM. A no-JS fetcher stores a contentless page.",
+    "expected": ["render.empty_initial_shell"],
+    "ignore": ["render.primary_content_js_only", "render.class_js_gap", "render.headings_js_only", "render.schema_injected_post_hydration", "render.excessive_script_dependence"]
+  },
+  "pages": [
+    { "url": "https://nimbus-analytics.example/", "file": "home-raw.html", "rendered_file": "home-rendered.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

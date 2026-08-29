@@ -1,0 +1,18 @@
+{
+  "site": "coastal-outfitters.example",
+  "robots_file": "robots.txt",
+  "audit_expectations": {
+    "mode": "Broken sitemap (served but malformed XML)",
+    "notes": "robots.txt advertises /sitemap.xml, which is served with status 200 but is not well-formed: a <loc> is unclosed and the <urlset> is never closed. A crawler that trusts the sitemap for discovery gets a parse error.",
+    "expected": ["access.sitemap_invalid"],
+    "ignore": []
+  },
+  "pages": [
+    { "url": "https://coastal-outfitters.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://coastal-outfitters.example/trips", "file": "trips.html", "rendered_file": "trips.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ],
+  "aux": [
+    { "url": "https://coastal-outfitters.example/robots.txt", "file": "robots.txt", "content_type": "text/plain" },
+    { "url": "https://coastal-outfitters.example/sitemap.xml", "file": "sitemap.xml", "content_type": "application/xml" }
+  ]
+}

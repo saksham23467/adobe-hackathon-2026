@@ -1,0 +1,10 @@
+{
+  "site": "render.example",
+  "pages": [
+    { "url": "https://render.example/static", "file": "static.html", "rendered_file": "static.html", "page_class": "article" },
+    { "url": "https://render.example/react-ssr", "file": "ssr.html", "rendered_file": "ssr.html", "page_class": "home" },
+    { "url": "https://render.example/js-article", "file": "article-raw.html", "rendered_file": "article-rendered.html", "page_class": "article" },
+    { "url": "https://render.example/empty-shell", "file": "shell-raw.html", "rendered_file": "shell-rendered.html", "page_class": "other" },
+    { "url": "https://render.example/image-heavy", "file": "image.html", "rendered_file": "image.html", "page_class": "other" }
+  ]
+}

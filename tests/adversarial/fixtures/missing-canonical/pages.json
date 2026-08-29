@@ -1,0 +1,16 @@
+{
+  "site": "riverstone-law.example",
+  "audit_expectations": {
+    "mode": "Missing canonical (same content at multiple URL forms)",
+    "notes": "No page declares rel=canonical, and the home and services pages are linked both bare and as /index.html and /services/index.html. Nothing consolidates the duplicate URL forms, so indexers split signals across variants.",
+    "expected": ["access.duplicate_url_variants"],
+    "ignore": ["access.url_normalization", "access.canonical_inconsistent"]
+  },
+  "pages": [
+    { "url": "https://riverstone-law.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://riverstone-law.example/index.html", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://riverstone-law.example/services", "file": "services.html", "rendered_file": "services.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://riverstone-law.example/services/index.html", "file": "services.html", "rendered_file": "services.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://riverstone-law.example/attorneys", "file": "attorneys.html", "rendered_file": "attorneys.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

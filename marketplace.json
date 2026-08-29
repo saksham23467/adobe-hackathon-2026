@@ -1,0 +1,16 @@
+{
+  "name": "brand-ai-readiness-audit",
+  "version": "1.0.0",
+  "description": "Agent Skill Marketplace that audits any website for AI-discoverability and on-site-engagement problems and emits a single evidence-backed audit report with prioritized, mechanism-sound fixes.",
+  "entrypoint": "audit-orchestrator",
+  "skills": [
+    { "id": "audit-orchestrator", "path": "skills/audit-orchestrator", "entrypoint": true },
+    { "id": "crawl-access", "path": "skills/crawl-access" },
+    { "id": "render-extract", "path": "skills/render-extract" },
+    { "id": "fact-accessibility", "path": "skills/fact-accessibility" },
+    { "id": "structured-identity", "path": "skills/structured-identity" },
+    { "id": "freshness-corroboration", "path": "skills/freshness-corroboration" },
+    { "id": "engagement-orientation", "path": "skills/engagement-orientation" },
+    { "id": "recommendation-engine", "path": "skills/recommendation-engine" }
+  ]
+}

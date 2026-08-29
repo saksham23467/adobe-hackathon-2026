@@ -1,0 +1,20 @@
+{
+  "site": "meridian-coffee.example",
+  "robots_file": "robots.txt",
+  "audit_expectations": {
+    "mode": "Perfect static website",
+    "notes": "Well-formed static site: valid schema, self canonicals, viewport, alt text, quotable value prop, consistent descriptive nav, sitemap. Precision anchor — a correct auditor must report nothing.",
+    "expected": [],
+    "ignore": []
+  },
+  "pages": [
+    { "url": "https://meridian-coffee.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://meridian-coffee.example/shop", "file": "shop.html", "rendered_file": "shop.html", "page_class": "product", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://meridian-coffee.example/about", "file": "about.html", "rendered_file": "about.html", "page_class": "about", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://meridian-coffee.example/contact", "file": "contact.html", "rendered_file": "contact.html", "page_class": "contact", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ],
+  "aux": [
+    { "url": "https://meridian-coffee.example/robots.txt", "file": "robots.txt", "content_type": "text/plain" },
+    { "url": "https://meridian-coffee.example/sitemap.xml", "file": "sitemap.xml", "content_type": "application/xml" }
+  ]
+}

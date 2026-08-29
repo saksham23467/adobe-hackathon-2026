@@ -1,0 +1,14 @@
+{
+  "site": "gadgetnest.example",
+  "audit_expectations": {
+    "mode": "Misleading structured data",
+    "notes": "The product's Offer schema says price 49.00 while the visible price is $99.00 (machines may quote the wrong price). A blog post's dateModified (2026-01-01) precedes its datePublished (2026-05-01), an internal contradiction. Both are cases where the markup is present but wrong — not merely absent.",
+    "expected": ["fact.contradictory_values", "identity.schema_contradiction"],
+    "ignore": ["identity.schema_visible_mismatch"]
+  },
+  "pages": [
+    { "url": "https://gadgetnest.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://gadgetnest.example/thermostat", "file": "thermostat.html", "rendered_file": "thermostat.html", "page_class": "product", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://gadgetnest.example/blog/local-control", "file": "blog-post.html", "rendered_file": "blog-post.html", "page_class": "article", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

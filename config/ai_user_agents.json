@@ -1,0 +1,18 @@
+{
+  "description": "AI/assistant retrieval user-agents whose robots.txt access we inspect. Presence of a Disallow for these UAs is an off-site discoverability signal, independent of whether our own crawler is allowed.",
+  "agents": [
+    { "token": "GPTBot", "operator": "OpenAI", "role": "training+retrieval" },
+    { "token": "OAI-SearchBot", "operator": "OpenAI", "role": "search" },
+    { "token": "ChatGPT-User", "operator": "OpenAI", "role": "on-demand fetch" },
+    { "token": "ClaudeBot", "operator": "Anthropic", "role": "training+retrieval" },
+    { "token": "Claude-Web", "operator": "Anthropic", "role": "on-demand fetch" },
+    { "token": "PerplexityBot", "operator": "Perplexity", "role": "search+retrieval" },
+    { "token": "Google-Extended", "operator": "Google", "role": "AI training/grounding" },
+    { "token": "Applebot-Extended", "operator": "Apple", "role": "AI training" },
+    { "token": "Amazonbot", "operator": "Amazon", "role": "assistant retrieval" },
+    { "token": "meta-externalagent", "operator": "Meta", "role": "assistant retrieval" }
+  ],
+  "reference_crawlers": [
+    { "token": "Googlebot", "operator": "Google", "role": "classic search baseline" }
+  ]
+}

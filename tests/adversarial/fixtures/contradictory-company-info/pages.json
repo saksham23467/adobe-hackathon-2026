@@ -1,0 +1,13 @@
+{
+  "site": "northwind-systems.example",
+  "audit_expectations": {
+    "mode": "Contradictory company information (founding year)",
+    "notes": "The home page says the company 'was founded in 2004' (first person, brand-tied) while the about page says 'Northwind Systems was established in 2012' (brand-named). Both are about the audited brand, so the site contradicts itself on a verifiable fact.",
+    "expected": ["freshness.self_contradiction"],
+    "ignore": []
+  },
+  "pages": [
+    { "url": "https://northwind-systems.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://northwind-systems.example/about", "file": "about.html", "rendered_file": "about.html", "page_class": "about", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

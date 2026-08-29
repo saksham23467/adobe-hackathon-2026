@@ -1,0 +1,15 @@
+{
+  "site": "quantex.example",
+  "audit_expectations": {
+    "mode": "Excellent discoverability, poor engagement",
+    "notes": "Crawlability, schema, canonicals, and metadata are all correct — but the experience is confusing: icon links in the header have no text or aria-label, the primary nav labels the same /pricing destination 'Pricing' on some pages and 'Plans' on others, and /legal is a dead-end page with no navigation, links, or CTA.",
+    "expected": ["engagement.unclear_navigation", "engagement.inconsistent_naming", "engagement.dead_end_page"],
+    "ignore": ["engagement.no_orientation", "engagement.key_info_undiscoverable", "engagement.blocking_interstitial", "engagement.unexplained_jargon", "engagement.content_hidden_interaction", "engagement.no_viewport_meta", "engagement.no_ia_navigation"]
+  },
+  "pages": [
+    { "url": "https://quantex.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://quantex.example/features", "file": "features.html", "rendered_file": "features.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://quantex.example/pricing", "file": "pricing.html", "rendered_file": "pricing.html", "page_class": "pricing", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://quantex.example/legal", "file": "legal.html", "rendered_file": "legal.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

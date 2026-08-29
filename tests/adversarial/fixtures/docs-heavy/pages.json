@@ -1,0 +1,16 @@
+{
+  "site": "devkit-docs.example",
+  "audit_expectations": {
+    "mode": "Documentation-heavy site (old but evergreen docs — precision test)",
+    "notes": "A developer docs site whose reference pages carry 2017 dateModified values. They are stable API references, not time-sensitive news. The staleness detector must exclude the 'docs' page class, so NO freshness.content_stale should fire despite the old dates. Contrast with the stale-info fixture, where an old article IS correctly flagged.",
+    "expected": [],
+    "ignore": ["freshness.content_stale"]
+  },
+  "pages": [
+    { "url": "https://devkit-docs.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://devkit-docs.example/docs/getting-started", "file": "getting-started.html", "rendered_file": "getting-started.html", "page_class": "docs", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://devkit-docs.example/docs/authentication", "file": "authentication.html", "rendered_file": "authentication.html", "page_class": "docs", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://devkit-docs.example/docs/webhooks", "file": "webhooks.html", "rendered_file": "webhooks.html", "page_class": "docs", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://devkit-docs.example/docs/errors", "file": "errors.html", "rendered_file": "errors.html", "page_class": "docs", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

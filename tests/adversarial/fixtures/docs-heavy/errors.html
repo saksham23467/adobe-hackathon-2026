@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Errors — DevKit Docs</title>
+  <meta name="description" content="DevKit API error codes, HTTP status meanings, and how to handle them.">
+  <link rel="canonical" href="https://devkit-docs.example/docs/errors">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Errors",
+    "datePublished": "2017-07-01",
+    "dateModified": "2017-11-20",
+    "author": { "@type": "Organization", "name": "DevKit" }
+  }
+  </script>
+</head>
+<body>
+  <header>
+    <nav aria-label="Primary">
+      <a href="/">Home</a>
+      <a href="/docs/getting-started">Getting Started</a>
+      <a href="/docs/authentication">Authentication</a>
+      <a href="/docs/webhooks">Webhooks</a>
+      <a href="/docs/errors">Errors</a>
+    </nav>
+  </header>
+  <main>
+    <article>
+      <h1>Errors</h1>
+      <p>DevKit uses conventional HTTP status codes. A 2xx means success, a 4xx means a problem with
+         your request, and a 5xx means a problem on our side. Every error includes a machine code.</p>
+      <img src="/img/errors.png" alt="A table mapping DevKit error codes to HTTP status codes">
+      <h2>Handling declines</h2>
+      <p>Card declines return a specific decline code you can surface to the customer.</p>
+    </article>
+    <p>Back to <a href="/docs/getting-started">Getting Started</a>.</p>
+  </main>
+  <footer><p>&copy; 2026 DevKit Inc.</p></footer>
+</body>
+</html>

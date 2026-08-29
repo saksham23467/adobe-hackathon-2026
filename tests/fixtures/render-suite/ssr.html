@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>SSR React app — render.example</title></head>
+<body>
+  <div id="root">
+    <header><nav><a href="/">Home</a> <a href="/pricing">Pricing</a> <a href="/about">About</a></nav></header>
+    <main>
+      <h1>Field tools built by working engineers</h1>
+      <p>Our React application is server-rendered, so the full product copy is present in the
+         initial HTML. Search engines and AI assistants can read the headline, the description,
+         and the calls to action without executing any JavaScript at all.</p>
+      <p>Hydration only attaches interactivity to content that already exists; it does not create
+         the primary text. This is the correct pattern and must not be flagged as a defect.</p>
+    </main>
+    <footer><p>&copy; 2026 render.example.</p></footer>
+  </div>
+  <script src="/static/runtime.js"></script>
+  <script src="/static/vendor.js"></script>
+  <script src="/static/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "site": "flowdesk.example",
+  "audit_expectations": {
+    "mode": "SaaS (pricing stated only vaguely)",
+    "notes": "A polished SaaS marketing site whose pricing page never states a concrete number — pricing is described only as 'flexible' and 'scales with your team' with a 'talk to us' CTA. An assistant asked 'how much does FlowDesk cost?' has nothing extractable to quote. (This is deliberately NOT an enterprise-only tier, which the detector correctly excuses.)",
+    "expected": ["fact.ambiguous_value"],
+    "ignore": ["engagement.unexplained_jargon", "identity.sameas_broken", "fact.no_quotable_value_prop"]
+  },
+  "pages": [
+    { "url": "https://flowdesk.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://flowdesk.example/product", "file": "product.html", "rendered_file": "product.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://flowdesk.example/pricing", "file": "pricing.html", "rendered_file": "pricing.html", "page_class": "pricing", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://flowdesk.example/contact", "file": "contact.html", "rendered_file": "contact.html", "page_class": "contact", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

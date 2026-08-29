@@ -1,0 +1,14 @@
+{
+  "site": "cornerstone-bakery.example",
+  "audit_expectations": {
+    "mode": "Local business (thin but correct — precision test)",
+    "notes": "A small, three-page local bakery: valid LocalBusiness schema, address, hours, phone, prices in text, consistent nav. It has no blog, few web mentions, and no reviews. A correct auditor must NOT invent freshness, corroboration, or entity-ambiguity findings just because a small business has a light footprint.",
+    "expected": [],
+    "ignore": []
+  },
+  "pages": [
+    { "url": "https://cornerstone-bakery.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://cornerstone-bakery.example/menu", "file": "menu.html", "rendered_file": "menu.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://cornerstone-bakery.example/visit", "file": "visit.html", "rendered_file": "visit.html", "page_class": "contact", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}

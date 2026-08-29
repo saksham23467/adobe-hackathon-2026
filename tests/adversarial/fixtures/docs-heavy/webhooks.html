@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Webhooks — DevKit Docs</title>
+  <meta name="description" content="Receive and verify DevKit webhook events for payments and refunds.">
+  <link rel="canonical" href="https://devkit-docs.example/docs/webhooks">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Webhooks",
+    "datePublished": "2017-06-10",
+    "dateModified": "2017-10-05",
+    "author": { "@type": "Organization", "name": "DevKit" }
+  }
+  </script>
+</head>
+<body>
+  <header>
+    <nav aria-label="Primary">
+      <a href="/">Home</a>
+      <a href="/docs/getting-started">Getting Started</a>
+      <a href="/docs/authentication">Authentication</a>
+      <a href="/docs/webhooks">Webhooks</a>
+      <a href="/docs/errors">Errors</a>
+    </nav>
+  </header>
+  <main>
+    <article>
+      <h1>Webhooks</h1>
+      <p>Webhooks notify your server when events happen — a payment succeeds, a refund is issued,
+         a dispute is opened. Register an endpoint and verify each event's signature.</p>
+      <img src="/img/webhooks.png" alt="A diagram of DevKit sending a webhook event to a customer server">
+      <h2>Verifying signatures</h2>
+      <p>Every event includes a signature header; verify it with your signing secret before acting.</p>
+    </article>
+    <p>Next: <a href="/docs/errors">Errors</a>.</p>
+  </main>
+  <footer><p>&copy; 2026 DevKit Inc.</p></footer>
+</body>
+</html>

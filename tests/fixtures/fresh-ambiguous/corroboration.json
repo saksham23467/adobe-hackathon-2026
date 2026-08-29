@@ -1,0 +1,11 @@
+{
+  "Apollo": {
+    "matched": true,
+    "confidence": "low",
+    "label": "Apollo",
+    "candidate_count": 6,
+    "prominent_candidates": 3,
+    "claims": {},
+    "source_url": "https://www.wikidata.org/wiki/Q12345"
+  }
+}

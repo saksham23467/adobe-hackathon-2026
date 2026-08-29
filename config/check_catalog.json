@@ -1,0 +1,609 @@
+{
+  "version": "1.0.0",
+  "note": "Closed taxonomy. A finding may only be minted for a check_id listed here. mechanism maps to the Round-2 appendix nodes (A=crawl access, B=retrieval-time sourcing, C=machine reading, D=corroboration/identity, E=personalization/context, F=non-text payload).",
+  "checks": [
+    {
+      "check_id": "access.ai_ua_blocked",
+      "concern": "crawl_access",
+      "mechanism": "B",
+      "default_severity": "critical",
+      "default_confidence": "high",
+      "title": "AI assistant crawlers are blocked in robots.txt",
+      "description": "robots.txt Disallows one or more major AI retrieval user-agents, so assistants cannot fetch the site at answer time."
+    },
+    {
+      "check_id": "access.global_noindex",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "critical",
+      "default_confidence": "high",
+      "title": "Site-wide noindex",
+      "description": "A noindex directive (meta or X-Robots-Tag) applies site-wide, removing pages from indexes."
+    },
+    {
+      "check_id": "access.class_noindex",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "A whole content class is noindex/blocked",
+      "description": "An entire content template class is excluded from indexing or crawling."
+    },
+    {
+      "check_id": "access.sitemap_missing",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "high",
+      "title": "No usable sitemap",
+      "description": "No XML sitemap was found or it is empty/incoherent, hindering discovery of deep pages."
+    },
+    {
+      "check_id": "access.robots_unreachable",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "robots.txt is unreachable (server error)",
+      "description": "robots.txt returns a 5xx/timeout; some crawlers treat an errored robots.txt as disallow-all."
+    },
+    {
+      "check_id": "access.robots_missing",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "low",
+      "title": "No robots.txt present",
+      "description": "Informational: no robots.txt served; permitted and means crawlers may access everything."
+    },
+    {
+      "check_id": "access.global_disallow_all",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "critical",
+      "default_confidence": "high",
+      "title": "robots.txt blocks all crawlers",
+      "description": "User-agent: * with Disallow: / blocks every compliant crawler from the whole site."
+    },
+    {
+      "check_id": "access.our_ua_blocked",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "low",
+      "title": "This audit's user-agent is disallowed",
+      "description": "Informational: our crawler is disallowed; results reflect only what was permitted."
+    },
+    {
+      "check_id": "access.sitemap_invalid",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "high",
+      "title": "Sitemap present but invalid",
+      "description": "A sitemap was served but is not well-formed XML or has an unexpected root element."
+    },
+    {
+      "check_id": "access.canonical_to_error",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "Canonical URL points to an error page",
+      "description": "A page's canonical target returns 4xx/5xx, which can drop the page from indexes."
+    },
+    {
+      "check_id": "access.homepage_unreachable",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "critical",
+      "default_confidence": "high",
+      "title": "Homepage returns an error status",
+      "description": "The entry point returns 4xx/5xx; the whole site is effectively invisible."
+    },
+    {
+      "check_id": "access.server_errors",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "Pages return server errors (5xx)",
+      "description": "Crawled pages return 5xx server errors."
+    },
+    {
+      "check_id": "access.redirect_loop",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "Redirect loop detected",
+      "description": "URLs enter a redirect loop or exceed the redirect limit; content is never reached."
+    },
+    {
+      "check_id": "access.redirect_chain_long",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Long redirect chains",
+      "description": "URLs redirect several times before resolving, wasting crawl budget."
+    },
+    {
+      "check_id": "access.broken_internal_links",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "Broken internal links",
+      "description": "Internal HTML link targets return confirmed 404, 410, or 5xx when fetched. A 403/401 is access-blocked, not automatically a broken page."
+    },
+    {
+      "check_id": "access.orphan_pages",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Orphan-like pages",
+      "description": "Pages appear in the sitemap but have no internal links pointing to them."
+    },
+    {
+      "check_id": "access.excessive_depth",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Content buried deep from the homepage",
+      "description": "Multiple pages are many clicks from the homepage and crawled less reliably."
+    },
+    {
+      "check_id": "access.important_noindex",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "Important page(s) set to noindex",
+      "description": "The homepage or a key section carries a noindex directive."
+    },
+    {
+      "check_id": "access.important_page_unreachable",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Important pages not reachable via internal links",
+      "description": "Key pages exist in the sitemap but have no internal links to reach them."
+    },
+    {
+      "check_id": "access.crawl_trap",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Potential crawl trap",
+      "description": "Repeating path segments or session parameters can trap crawlers in an unbounded URL space."
+    },
+    {
+      "check_id": "access.url_normalization",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "low",
+      "title": "Inconsistent URL forms in internal links",
+      "description": "Informational: internal links use inconsistent URL forms, increasing duplicate crawling."
+    },
+    {
+      "check_id": "access.duplicate_url_variants",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Duplicate URL variants without a single canonical",
+      "description": "The same content is served at multiple URL variants that do not agree on one canonical URL."
+    },
+    {
+      "check_id": "access.pagination_issue",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Pagination discoverability issue",
+      "description": "Paginated pages link (rel=next) to an unreachable or noindex page."
+    },
+    {
+      "check_id": "access.crawl_budget_risk",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Crawl budget risk from parameterized URLs",
+      "description": "A large share of internal links carry many parameters/session ids, exploding the crawl space."
+    },
+    {
+      "check_id": "access.canonical_inconsistent",
+      "concern": "crawl_access",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Inconsistent or self-conflicting canonical tags",
+      "description": "Canonical tags form loops, point at error URLs, or point at a clearly unrelated origin. A sibling-subdomain canonical is a review signal, not an automatic defect."
+    },
+    {
+      "check_id": "render.primary_content_js_only",
+      "concern": "render",
+      "mechanism": "C",
+      "default_severity": "critical",
+      "default_confidence": "high",
+      "title": "Primary content only exists after JavaScript",
+      "description": "Raw HTML lacks the page's primary facts that appear only after client-side rendering; no-JS crawlers store an empty page."
+    },
+    {
+      "check_id": "render.class_js_gap",
+      "concern": "render",
+      "mechanism": "C",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "A content class has a large render gap",
+      "description": "A template class shows a large difference between raw-HTML text and rendered text for primary facts."
+    },
+    {
+      "check_id": "render.schema_injected_post_hydration",
+      "concern": "render",
+      "mechanism": "C",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Structured data is injected only after hydration",
+      "description": "JSON-LD is absent from raw HTML and present only in the rendered DOM, so no-JS fetchers miss it."
+    },
+    {
+      "check_id": "render.empty_initial_shell",
+      "concern": "render",
+      "mechanism": "C",
+      "default_severity": "critical",
+      "default_confidence": "high",
+      "title": "Initial HTML is an empty app shell",
+      "description": "The raw HTTP response is an empty mount node with scripts; all content appears only after JavaScript, so no-JS fetchers store a blank page."
+    },
+    {
+      "check_id": "render.headings_js_only",
+      "concern": "render",
+      "mechanism": "C",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "Heading outline exists only after JavaScript",
+      "description": "The raw HTML has body text but the h1..h3 outline is injected by JavaScript, degrading machine parsing of the page structure."
+    },
+    {
+      "check_id": "render.content_behind_interaction",
+      "concern": "render",
+      "mechanism": "C",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Material content is hidden from the accessibility tree",
+      "description": "A large share of the page's text sits in elements hidden behind interactions or removed from the accessibility tree, so assistants reading the exposed DOM miss it."
+    },
+    {
+      "check_id": "render.excessive_script_dependence",
+      "concern": "render",
+      "mechanism": "C",
+      "default_severity": "medium",
+      "default_confidence": "low",
+      "title": "Script-heavy page (content still present in raw HTML)",
+      "description": "Informational: the page loads many scripts but its content is already in the raw HTML; a performance note, not an accessibility defect."
+    },
+    {
+      "check_id": "render.text_as_image",
+      "concern": "render",
+      "mechanism": "F",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Meaningful text is represented only as images",
+      "description": "The page carries its meaningful text inside images rather than as HTML text, so machines cannot extract or quote it without OCR."
+    },
+    {
+      "check_id": "render.canvas_content",
+      "concern": "render",
+      "mechanism": "F",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Primary content is painted into <canvas>",
+      "description": "Primary content is rendered into a canvas element that exposes no text nodes; machines see an opaque bitmap."
+    },
+    {
+      "check_id": "fact.facts_locked_in_non_text",
+      "concern": "fact_access",
+      "mechanism": "F",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Key facts are locked in images/PDF",
+      "description": "Differentiating facts exist only inside images, canvas, or PDFs and not as extractable HTML text."
+    },
+    {
+      "check_id": "fact.informational_images_no_alt",
+      "concern": "fact_access",
+      "mechanism": "F",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Informational images lack alt text",
+      "description": "Images carrying information have empty or missing alt/figcaption, so extractors cannot read them."
+    },
+    {
+      "check_id": "fact.no_quotable_value_prop",
+      "concern": "fact_access",
+      "mechanism": "C",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "No quotable one-sentence value proposition",
+      "description": "No single plain-text sentence states what the brand is/does in a form an assistant can quote."
+    },
+    {
+      "check_id": "fact.ambiguous_value",
+      "concern": "fact_access",
+      "mechanism": "C",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Important fact stated only with a vague qualifier",
+      "description": "A fact category (pricing/hours/location) is referenced only with a vague phrase and no concrete value, so it cannot be extracted or quoted."
+    },
+    {
+      "check_id": "fact.contradictory_values",
+      "concern": "fact_access",
+      "mechanism": "C",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "Contradictory values for the same fact",
+      "description": "The structured data and the visible text disagree on the value of a fact (e.g. price), so an assistant may quote a wrong value."
+    },
+    {
+      "check_id": "fact.not_attributed_to_entity",
+      "concern": "fact_access",
+      "mechanism": "D",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Fact not attributable to the correct entity",
+      "description": "A concrete fact (e.g. a product price) is shown without structured data tying it to a named entity, so it cannot be attributed correctly."
+    },
+    {
+      "check_id": "fact.behind_interaction",
+      "concern": "fact_access",
+      "mechanism": "C",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Fact available only after interaction",
+      "description": "A fact category (FAQ/specs/policies) exists only inside hidden, interaction-gated DOM, so it is absent from the initial readable text."
+    },
+    {
+      "check_id": "identity.product_schema_missing",
+      "concern": "identity",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "Product pages lack Product/Offer structured data",
+      "description": "Product templates contain no valid schema.org Product/Offer markup."
+    },
+    {
+      "check_id": "identity.schema_invalid",
+      "concern": "identity",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "Structured data is present but invalid",
+      "description": "JSON-LD/microdata is present but fails schema.org validity (missing required properties or mismatched content)."
+    },
+    {
+      "check_id": "identity.no_organization_schema",
+      "concern": "identity",
+      "mechanism": "D",
+      "default_severity": "medium",
+      "default_confidence": "high",
+      "title": "No Organization/WebSite entity markup",
+      "description": "The site lacks Organization/WebSite JSON-LD that names the brand entity for machines."
+    },
+    {
+      "check_id": "identity.entity_ambiguous",
+      "concern": "identity",
+      "mechanism": "D",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Brand entity is ambiguous / undisambiguated",
+      "description": "The brand name collides with other prominent entities and the site provides no disambiguators (sameAs, legal name, category)."
+    },
+    {
+      "check_id": "identity.sameas_broken",
+      "concern": "identity",
+      "mechanism": "D",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "sameAs links missing or unresolvable",
+      "description": "Organization.sameAs is absent or points to dead/irrelevant profiles, weakening entity grounding."
+    },
+    {
+      "check_id": "identity.jsonld_malformed",
+      "concern": "identity",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "Malformed JSON-LD block",
+      "description": "A script[type=application/ld+json] block contains invalid JSON, so the entity it describes is invisible to machines."
+    },
+    {
+      "check_id": "identity.type_inappropriate",
+      "concern": "identity",
+      "mechanism": "A",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Unrecognized or inappropriate schema.org type",
+      "description": "An entity declares a @type that is not a valid schema.org class (typo/invented), so consumers ignore it."
+    },
+    {
+      "check_id": "identity.schema_contradiction",
+      "concern": "identity",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "Contradictory structured data",
+      "description": "Structured data is internally inconsistent (e.g. dateModified before datePublished, or one @id reused across types)."
+    },
+    {
+      "check_id": "identity.schema_visible_mismatch",
+      "concern": "identity",
+      "mechanism": "A",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Structured data disagrees with visible content",
+      "description": "A schema value (name/price) is absent from or contradicts the visible page, so machines may quote a stale/wrong fact."
+    },
+    {
+      "check_id": "identity.duplicate_entity",
+      "concern": "identity",
+      "mechanism": "D",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Duplicate/conflicting primary entities",
+      "description": "Multiple distinct primary Organization entities exist, so machines cannot decide which entity owns the site."
+    },
+    {
+      "check_id": "identity.entity_unlinked",
+      "concern": "identity",
+      "mechanism": "D",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Entities present but not linked into a graph",
+      "description": "Product/page entities do not reference the Organization/Brand entity, so facts cannot be attributed to the company."
+    },
+    {
+      "check_id": "identity.canonical_entity_mismatch",
+      "concern": "identity",
+      "mechanism": "D",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Entity url inconsistent with page host",
+      "description": "An entity's url/@id points at a different host than the page it is served on, risking misattribution to another domain."
+    },
+    {
+      "check_id": "freshness.content_stale",
+      "concern": "freshness",
+      "mechanism": "D",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Dated content is systematically stale",
+      "description": "dateModified/lastmod/latest-post signals indicate key content has not been updated in a long time."
+    },
+    {
+      "check_id": "freshness.claim_conflict",
+      "concern": "freshness",
+      "mechanism": "D",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "A key claim conflicts with independent sources",
+      "description": "A specific on-site claim contradicts corroborating independent sources (Wikidata/sameAs), inviting distrust."
+    },
+    {
+      "check_id": "freshness.self_contradiction",
+      "concern": "freshness",
+      "mechanism": "D",
+      "default_severity": "high",
+      "default_confidence": "high",
+      "title": "The site contradicts itself on a key fact",
+      "description": "A high-value claim (founding year, leadership, operating status) is stated with conflicting values across the site."
+    },
+    {
+      "check_id": "freshness.unsupported_claim",
+      "concern": "freshness",
+      "mechanism": "D",
+      "default_severity": "medium",
+      "default_confidence": "low",
+      "title": "Unusually strong claim with no support",
+      "description": "A superlative/absolute marketing claim is made with no attribution, citation, ranking source, or verifiable detail."
+    },
+    {
+      "check_id": "engagement.blocking_interstitial",
+      "concern": "engagement",
+      "mechanism": "E",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "A blocking interstitial precedes content",
+      "description": "A full-content-blocking overlay/modal appears before the visitor can see the page's value."
+    },
+    {
+      "check_id": "engagement.no_orientation",
+      "concern": "engagement",
+      "mechanism": "E",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Weak above-the-fold orientation",
+      "description": "A first-time visitor cannot answer what this is / for whom / what next from above-the-fold text and navigation."
+    },
+    {
+      "check_id": "engagement.no_ia_navigation",
+      "concern": "engagement",
+      "mechanism": "E",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Missing information architecture signals",
+      "description": "No usable navigation, breadcrumbs, or site search to help visitors move through the site."
+    },
+    {
+      "check_id": "engagement.content_hidden_interaction",
+      "concern": "engagement",
+      "mechanism": "E",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Orientation content hidden behind interaction",
+      "description": "The entry page's main heading/value proposition exists only inside hidden or interaction-gated DOM, so it is absent from what a visitor first sees."
+    },
+    {
+      "check_id": "engagement.unexplained_jargon",
+      "concern": "engagement",
+      "mechanism": "E",
+      "default_severity": "medium",
+      "default_confidence": "low",
+      "title": "Unexplained jargon in navigation",
+      "description": "Navigation uses unexpanded acronyms or terms that never appear defined on the site, which can confuse first-time visitors."
+    },
+    {
+      "check_id": "engagement.unclear_navigation",
+      "concern": "engagement",
+      "mechanism": "E",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Ambiguous or empty navigation links",
+      "description": "Links have empty or non-descriptive text (no aria-label), so visitors and assistants cannot tell where they lead."
+    },
+    {
+      "check_id": "engagement.inconsistent_naming",
+      "concern": "engagement",
+      "mechanism": "E",
+      "default_severity": "medium",
+      "default_confidence": "high",
+      "title": "Inconsistent naming for the same destination",
+      "description": "The same destination is labelled differently across the primary navigation, breaking the visitor's mental map of the site."
+    },
+    {
+      "check_id": "engagement.dead_end_page",
+      "concern": "engagement",
+      "mechanism": "E",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Dead-end page with no next step",
+      "description": "A page offers no navigation, no onward content links, and no call-to-action, leaving the visitor with nowhere to go."
+    },
+    {
+      "check_id": "engagement.key_info_undiscoverable",
+      "concern": "engagement",
+      "mechanism": "E",
+      "default_severity": "high",
+      "default_confidence": "medium",
+      "title": "Key information not reachable from the home page",
+      "description": "Product, pricing, or contact pages exist but are not linked from the home page, adding friction before important information."
+    },
+    {
+      "check_id": "engagement.no_viewport_meta",
+      "concern": "engagement",
+      "mechanism": "E",
+      "default_severity": "medium",
+      "default_confidence": "medium",
+      "title": "Missing or zoom-blocking mobile viewport",
+      "description": "Pages lack a viewport meta tag or disable pinch-zoom, degrading mobile usability where it is reliably detectable."
+    }
+  ]
+}

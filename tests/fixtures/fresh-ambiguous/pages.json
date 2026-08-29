@@ -1,0 +1,6 @@
+{
+  "site": "apollo.example",
+  "pages": [
+    { "url": "https://apollo.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home" }
+  ]
+}

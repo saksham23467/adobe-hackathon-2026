@@ -1,0 +1,13 @@
+{
+  "site": "olive-and-thyme.example",
+  "audit_expectations": {
+    "mode": "Important facts only in images",
+    "notes": "The entire menu — dishes and prices — is served as four <img> screenshots with no alt text and no HTML equivalent, so machines cannot read or quote the food, prices, or wine list.",
+    "expected": ["fact.informational_images_no_alt"],
+    "ignore": ["fact.facts_locked_in_non_text", "render.text_as_image", "render.canvas_content"]
+  },
+  "pages": [
+    { "url": "https://olive-and-thyme.example/", "file": "home.html", "rendered_file": "home.html", "page_class": "home", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } },
+    { "url": "https://olive-and-thyme.example/menu", "file": "menu.html", "rendered_file": "menu.html", "page_class": "other", "status": 200, "headers": { "content-type": "text/html; charset=utf-8" } }
+  ]
+}
