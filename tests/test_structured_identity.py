@@ -57,6 +57,8 @@ def test_name_similarity():
     assert not eg.names_similar("NimbusPay", "Nimbus Pay")  # same entity, not a clash
     assert eg.names_similar("NimbusPay", "NimbusBay")
     assert not eg.names_similar("Acme Robotics", "Globex Media")
+    assert eg.is_qualified_variant("Acme", "Acme Support")
+    assert not eg.is_qualified_variant("NimbusPay", "NimbusBay")
 
 
 # --------------------------------------------------------------------------
@@ -138,6 +140,40 @@ def test_canonical_entity_mismatch():
     html = ("<script type='application/ld+json'>{\"@type\":\"Organization\",\"name\":\"Acme\","
             "\"url\":\"https://other-domain.com/\"}</script>")
     assert "identity.canonical_entity_mismatch" in fail_ids([rec("https://example.com/", html, "home")])
+
+
+def test_sibling_host_orgs_are_not_site_conflicts():
+    root = ("<script type='application/ld+json'>{\"@type\":\"Organization\","
+            "\"name\":\"Acme\",\"url\":\"https://www.acme.example/\"}</script>")
+    support = ("<script type='application/ld+json'>{\"@type\":\"Organization\","
+               "\"name\":\"Acme Support\",\"url\":\"https://support.acme.example/\"}</script>")
+    ids = fail_ids([
+        rec("https://www.acme.example/", root, "home"),
+        rec("https://support.acme.example/", support, "docs"),
+    ])
+    assert "identity.duplicate_entity" not in ids
+    assert "identity.entity_ambiguous" not in ids
+    assert "identity.canonical_entity_mismatch" not in ids
+
+
+def test_qualified_org_variant_is_not_a_clash():
+    html = ("<script type='application/ld+json'>{\"@type\":\"Organization\",\"name\":\"Acme\","
+            "\"url\":\"https://s/\"}</script>"
+            "<script type='application/ld+json'>{\"@type\":\"Organization\",\"name\":\"Acme Support\","
+            "\"url\":\"https://s/\"}</script>")
+    ids = fail_ids([rec("https://s/", html, "home")])
+    assert "identity.entity_ambiguous" not in ids
+    assert "identity.duplicate_entity" not in ids
+
+
+def test_schema_name_matches_split_visible_tokens():
+    from audit_common.dom import name_mentioned
+    assert name_mentioned("MacBook\xa0Pro", "The new MacBook Pro is here")
+    assert name_mentioned(
+        "MacBook Air 13-inch and MacBook Air 15-inch",
+        "Compare MacBook Air 13-inch with the 15-inch model.",
+    )
+    assert not name_mentioned("Atlas Wrench", "Titan Wrench is our flagship tool.")
 
 
 def test_findings_carry_full_evidence():

@@ -5,12 +5,12 @@ raw HTTP body + headers, and (when a renderer is available) the rendered DOM
 and extracted text. Detectors must never re-fetch; they read the cache.
 
 Two acquisition backends:
-  * LiveAcquirer   -- stdlib urllib GET, robots-gated, capped, polite.
+  * LiveAcquirer   -- curl GET (urllib fallback), robots-gated, capped, polite.
   * FixtureAcquirer-- reads a local fixture directory for hermetic tests.
 
-Rendering (headless browser) is optional. If no renderer is installed the
-render fields stay empty and render-dependent checks degrade to
-``inconclusive`` rather than emitting false findings.
+No headless browser (Playwright/Selenium are not used). Downstream skills
+read the curl-fetched HTML. Render-gap checks that need a JS-executed DOM
+are not run; empty shells and non-text payloads are detected from that HTML.
 """
 
 from __future__ import annotations
@@ -18,12 +18,11 @@ from __future__ import annotations
 import json
 import os
 import re
-import urllib.error
 import urllib.parse
-import urllib.request
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
+from .curlfetch import http_get
 from .safety import SafetyGate
 
 
@@ -37,7 +36,7 @@ class PageRecord:
     headers: Dict[str, str] = field(default_factory=dict)
     raw_html: str = ""
     raw_text: str = ""  # naive text extracted from raw_html (no JS)
-    rendered_html: str = ""  # populated only if a renderer ran
+    rendered_html: str = ""  # fixture-only comparison HTML; never from a browser
     rendered_text: str = ""
     fetched: bool = False
     error: str = ""
@@ -145,7 +144,7 @@ def _strip_html(html: str) -> str:
 
 
 class LiveAcquirer:
-    """Fetch real pages over HTTP(S), read-only and robots-gated."""
+    """Fetch real pages over HTTP(S) with curl, read-only and robots-gated."""
 
     def __init__(self, gate: SafetyGate) -> None:
         self.gate = gate
@@ -161,24 +160,24 @@ class LiveAcquirer:
             return rec
         host = urllib.parse.urlsplit(url).netloc
         self.gate.rate.wait(host)
-        req = urllib.request.Request(
-            url,
-            method="GET",
-            headers={"User-Agent": self.gate.config.user_agent, "Accept": "text/html,*/*"},
-        )
         try:
-            with urllib.request.urlopen(req, timeout=self.gate.config.request_timeout_s) as resp:
-                rec.status_code = getattr(resp, "status", 200)
-                rec.final_url = resp.geturl()
-                rec.headers = {k.lower(): v for k, v in resp.headers.items()}
-                raw = resp.read(self.gate.config.max_bytes_per_page)
-                charset = resp.headers.get_content_charset() or "utf-8"
-                rec.raw_html = raw.decode(charset, errors="replace")
-                rec.raw_text = _strip_html(rec.raw_html)
-                rec.fetched = True
-        except urllib.error.HTTPError as e:
-            rec.status_code = e.code
-            rec.error = f"http_error_{e.code}"
+            got = http_get(
+                url,
+                user_agent=self.gate.config.user_agent,
+                timeout_s=self.gate.config.request_timeout_s,
+                max_bytes=self.gate.config.max_bytes_per_page,
+                accept="text/html,*/*",
+            )
+            rec.status_code = got.status
+            rec.final_url = got.final_url or url
+            rec.headers = got.headers
+            rec.raw_html = got.body
+            rec.raw_text = _strip_html(rec.raw_html)
+            rec.fetched = bool(got.body) or (200 <= got.status < 400)
+            if got.error:
+                rec.error = got.error
+            elif got.status >= 400:
+                rec.error = f"http_error_{got.status}"
         except Exception as e:  # noqa: BLE001 -- record, never crash the audit
             rec.error = f"fetch_error:{type(e).__name__}"
         return rec

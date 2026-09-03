@@ -118,6 +118,34 @@ def test_headings_js_only():
     assert ids == {"render.headings_js_only"}
 
 
+def test_nbsp_heading_is_not_js_only():
+    body = "<p>" + ("word " * 60) + "</p>"
+    raw = f"<main><h1>MacBook Pro</h1>{body}</main>"
+    rendered = f"<main><h1>MacBook\xa0Pro</h1>{body}</main>"
+    obs = renderdetect.run_all([rec("https://s/nbsp", raw, rendered)])
+    ids = {o.check_id for o in obs if o.status == Status.FAIL}
+    assert "render.headings_js_only" not in ids
+
+
+def test_accordion_plus_heading_is_chrome():
+    body = "<p>" + ("word " * 60) + "</p>"
+    raw = f"<main><h1>Welcome</h1>{body}</main>"
+    rendered = f"<main><h1>Welcome</h1><h2>Shop and Learn +</h2>{body}</main>"
+    obs = renderdetect.run_all([rec("https://s/plus", raw, rendered)])
+    ids = {o.check_id for o in obs if o.status == Status.FAIL}
+    assert "render.headings_js_only" not in ids
+
+
+def test_substantial_raw_html_is_not_primary_js_gap():
+    raw_words = " ".join(["content"] * 320)
+    extra = " ".join(["footer"] * 580)
+    raw = f"<main><p>{raw_words}</p></main>"
+    rendered = f"<main><p>{raw_words}</p><footer><p>{extra}</p></footer></main>"
+    obs = renderdetect.run_all([rec("https://s/full", raw, rendered)])
+    ids = {o.check_id for o in obs if o.status == Status.FAIL}
+    assert "render.primary_content_js_only" not in ids
+
+
 def test_content_behind_interaction():
     hidden = "<div aria-hidden='true'><p>" + ("secret " * 60) + "</p></div>"
     rendered = f"<main><p>Short intro only.</p>{hidden}</main>"
@@ -154,9 +182,14 @@ def test_canvas_content():
     assert "render.canvas_content" in ids
 
 
-def test_no_rendered_dom_is_inconclusive():
+def test_readable_curl_html_is_not_a_render_fail():
     cache = Cache()
-    cache.put(PageRecord(url="https://s/only-raw", raw_html="<h1>Hi</h1>", rendered_html="", fetched=True))
+    cache.put(PageRecord(
+        url="https://s/only-raw",
+        raw_html="<h1>Welcome</h1><p>" + ("word " * 50) + "</p>",
+        rendered_html="",
+        fetched=True,
+    ))
 
     class Ctx:
         pass
@@ -164,4 +197,23 @@ def test_no_rendered_dom_is_inconclusive():
     ctx = Ctx()
     ctx.cache = cache
     obs = render_detect.detect(ctx)
-    assert len(obs) == 1 and obs[0].status == Status.INCONCLUSIVE
+    assert all(o.status != Status.FAIL for o in obs)
+
+
+def test_raw_http_empty_shell_is_a_finding():
+    cache = Cache()
+    cache.put(PageRecord(
+        url="https://s/spa",
+        raw_html='<div id="root"></div><script src="/app.js"></script>',
+        rendered_html="",
+        fetched=True,
+    ))
+
+    class Ctx:
+        pass
+
+    ctx = Ctx()
+    ctx.cache = cache
+    obs = render_detect.detect(ctx)
+    ids = {o.check_id for o in obs if o.status == Status.FAIL}
+    assert "render.empty_initial_shell" in ids

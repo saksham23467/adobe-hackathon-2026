@@ -12,7 +12,9 @@ description: >-
   inconsistency. Every finding connects structured data to an actual
   discoverability, extraction, attribution, or ambiguity problem and carries
   exact evidence, the affected entity, the detected mismatch, the expected
-  relationship, severity, confidence, mechanism, and a concrete fix.
+  relationship, severity, confidence, mechanism, and a concrete fix. Use when
+  checking schema.org identity, attribution, or entity conflicts after
+  acquisition.
 license: MIT
 metadata:
   concern: identity
@@ -28,6 +30,14 @@ schema can be worse than none.
 
 ## When to use
 After acquisition. Reads the shared cache; never re-fetches.
+
+## Inputs
+- `ctx.cache` page records (HTML plus visible/rendered text for schema-vs-page checks).
+
+## Procedure
+1. `scripts/entitygraph.py` parses JSON-LD / microdata / RDFa into an `EntityGraph`.
+2. `scripts/identitydetect.py` runs the identity detectors on that graph.
+3. `scripts/detect.py` returns `identity.*` observations.
 
 ## Engine
 - `scripts/entitygraph.py` — parses JSON-LD / microdata / RDFa into `EntityNode`s

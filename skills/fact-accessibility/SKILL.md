@@ -12,7 +12,8 @@ description: >-
   homepages with no quotable value proposition. Every finding names the mechanism
   and carries an evidence snippet plus a confidence score. Not generic SEO
   scoring — a page whose facts are concrete, textual, attributed, and visible
-  produces no findings.
+  produces no findings. Use when checking whether brand facts are
+  machine-quotable after acquisition.
 license: MIT
 metadata:
   concern: fact_access
@@ -28,6 +29,14 @@ per fact category, never with generic "content could be improved" claims.
 
 ## When to use
 After acquisition. Reads the shared cache; never re-fetches.
+
+## Inputs
+- `ctx.cache` page records (raw and/or rendered HTML plus extracted text).
+
+## Procedure
+1. `scripts/factextract.py` parses each cached page into a `Doc` (sections, JSON-LD, matchers).
+2. `scripts/factdetect.py` runs the extractability detectors.
+3. `scripts/detect.py` returns `fact.*` observations.
 
 ## Engine
 - `scripts/factextract.py` — parses HTML into a `Doc`: headed `Section`s (with a

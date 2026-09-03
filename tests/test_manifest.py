@@ -205,6 +205,49 @@ def test_references_one_level_deep():
             )
 
 
+def test_description_states_when_to_use():
+    """agentskills.io: description must say what the skill does AND when."""
+    m = _load_manifest()
+    for skill in m["skills"]:
+        skill_md = os.path.join(ROOT, skill["path"], "SKILL.md")
+        fm, _body = _frontmatter_and_body(_skill_md(skill_md))
+        desc = _description_text(fm)
+        assert re.search(r"\b[Uu]se (when|as)\b", desc), (
+            f"{skill['id']}: description must include 'Use when' / 'Use as' trigger"
+        )
+
+
+def test_skill_bodies_declare_io_and_procedure():
+    m = _load_manifest()
+    for skill in m["skills"]:
+        _fm, body = _frontmatter_and_body(_skill_md(os.path.join(ROOT, skill["path"], "SKILL.md")))
+        for heading in ("When to use", "Inputs", "Outputs"):
+            assert re.search(rf"^## {re.escape(heading)}\b", body, re.M), (
+                f"{skill['id']}: SKILL.md missing '## {heading}'"
+            )
+        assert re.search(r"^## Procedure", body, re.M), (
+            f"{skill['id']}: SKILL.md missing a Procedure section"
+        )
+
+
+def test_every_script_is_linked_from_skill_md():
+    """Progressive disclosure: every scripts/*.py is named from SKILL.md."""
+    m = _load_manifest()
+    for skill in m["skills"]:
+        folder = os.path.join(ROOT, skill["path"])
+        scripts_dir = os.path.join(folder, "scripts")
+        if not os.path.isdir(scripts_dir):
+            continue
+        _fm, body = _frontmatter_and_body(_skill_md(os.path.join(folder, "SKILL.md")))
+        linked = _linked_paths(body, "scripts")
+        for name in os.listdir(scripts_dir):
+            if not name.endswith(".py"):
+                continue
+            assert f"scripts/{name}" in linked, (
+                f"{skill['id']}: script '{name}' is not linked from SKILL.md"
+            )
+
+
 def test_entrypoint_declared_consistently():
     m = _load_manifest()
     assert m.get("entrypoint"), "manifest missing top-level entrypoint"

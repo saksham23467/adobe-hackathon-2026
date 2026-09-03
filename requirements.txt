@@ -1,12 +1,2 @@
-# Core runtime: NONE. The marketplace runs on the Python 3 standard library
-# only, so it stays portable and self-contained (no external service to resolve).
-#
-# Optional extras (not required; the scaffold degrades gracefully without them):
-#
-#   playwright        # headless Chromium for JS render-gap checks (render-extract)
-#                     #   pip install playwright && python -m playwright install chromium
-#   pytest            # nicer test output; tests also run via `python3 tests/run_tests.py`
-#
-# Install optional extras only if you want rendering / pytest:
-# playwright>=1.44
-# pytest>=8.0
+# Core runtime: Python 3 standard library + curl on PATH.
+# No pip packages. Playwright and Selenium are not used and must not be added.

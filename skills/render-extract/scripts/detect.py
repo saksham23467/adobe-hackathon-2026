@@ -1,14 +1,16 @@
 """render-extract detector entrypoint.
 
-Compares four representations per page:
-  A. initial HTTP response      (record.raw_html)
-  B. browser-rendered DOM       (record.rendered_html, full DOM text)
-  C. visible rendered text      (rendered DOM minus hidden/inaccessible nodes)
+Compares representations of each page from the acquire-once cache:
+
+  A. curl-fetched HTTP HTML     (record.raw_html) — the live path
+  B. optional comparison HTML   (record.rendered_html) — fixtures only
+  C. visible text               (hidden/a11y-removed nodes stripped)
   D. semantic representation    (headings, JSON-LD)
 
-and emits render findings ONLY where JavaScript materially reduces machine
-accessibility. If no rendered DOM is available (no headless browser was run),
-the render gap is reported as `inconclusive` — never a false finding.
+Live audits never run a browser (Playwright/Selenium are not used). Empty
+shells, canvas, and image-only pages are detected from the curl HTML.
+Fixture tests may still supply a second HTML snapshot to compare JS-added
+text.
 """
 
 from __future__ import annotations
@@ -36,21 +38,28 @@ from audit_common.schema import (  # noqa: E402
 
 def detect(ctx) -> List[Observation]:
     records = ctx.cache.all() if getattr(ctx, "cache", None) is not None else []
-    rendered_records = [r for r in records if r.rendered_html and r.raw_html]
+    compared = [r for r in records if r.rendered_html and r.raw_html]
+    raw_only = [r for r in records if r.raw_html and not r.rendered_html]
 
-    if not rendered_records:
+    out: List[Observation] = []
+    if compared:
+        out.extend(renderdetect.run_all(compared))
+    if raw_only:
+        out.extend(renderdetect.run_raw_http(raw_only))
+    if out:
+        return out
+    if not any(getattr(r, "raw_html", "") for r in records):
         return [
             Observation(
                 check_id="render.primary_content_js_only",
                 concern=Concern.RENDER,
-                method=Method.RENDER,
+                method=Method.HTTP,
                 status=Status.INCONCLUSIVE,
                 confidence=Confidence.MEDIUM,
                 evidence_sentence=(
-                    "No rendered DOM was available (headless renderer not installed); "
-                    "the JavaScript render gap could not be evaluated."
+                    "No HTTP HTML was available; machine-readability of the "
+                    "page body could not be evaluated."
                 ),
             )
         ]
-
-    return renderdetect.run_all(rendered_records)
+    return []

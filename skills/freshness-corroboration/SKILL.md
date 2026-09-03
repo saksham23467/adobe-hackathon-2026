@@ -13,13 +13,14 @@ description: >-
   a finding, so small/local/new brands are not penalized. Every finding is
   classified corroborated / partially_corroborated / inconsistent / stale-risk /
   insufficient_evidence with source URLs and exact evidence. The only skill that
-  leaves the origin; strictly bounded and fail-soft.
+  leaves the origin; strictly bounded and fail-soft. Use when time and
+  network remain.
 license: MIT
 metadata:
   concern: freshness
   mechanism: "D"
 compatibility: Network access improves this skill; it degrades to inconclusive offline.
-allowed-tools: Bash(python3:*) WebFetch Read
+allowed-tools: Bash(python3:*) Bash(curl:*) Read
 ---
 
 # Freshness & Corroboration
@@ -30,6 +31,16 @@ the only one that leaves the origin — under strict, fail-soft rules.
 
 ## When to use
 Last detection stage, only if time and network remain. Always fail-soft.
+
+## Inputs
+- `ctx.cache` page records (on-site claims and dates).
+- Optional corroboration backend and remaining `ctx.gate` network budget.
+
+## Procedure
+1. `scripts/claims.py` extracts on-site dates and high-value claims.
+2. If budget remains, `scripts/corroborate.py` does at most one fail-soft lookup.
+3. `scripts/freshdetect.py` classifies and emits observations.
+4. `scripts/detect.py` returns them, or a limitation when the backend is unavailable.
 
 ## Engine
 - `scripts/claims.py` — extracts content dates (JSON-LD, `<time>`, meta, "last

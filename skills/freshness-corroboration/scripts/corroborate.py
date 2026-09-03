@@ -21,7 +21,6 @@ import json
 import os
 import re
 import urllib.parse
-import urllib.request
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
@@ -75,10 +74,18 @@ class LiveCorroborator:
         _t0 = _time.monotonic()
         try:
             self.gate.assert_readonly("GET")
-            req = urllib.request.Request(
-                url, method="GET", headers={"User-Agent": self.gate.config.user_agent})
-            with urllib.request.urlopen(req, timeout=self.gate.config.request_timeout_s) as resp:
-                return json.loads(resp.read(1_000_000).decode("utf-8", errors="replace"))
+            from audit_common.curlfetch import http_get
+            got = http_get(
+                url,
+                user_agent=self.gate.config.user_agent,
+                timeout_s=self.gate.config.request_timeout_s,
+                max_bytes=1_000_000,
+                max_redirects=3,
+                accept="application/json",
+            )
+            if not got.body or got.status >= 400:
+                return None
+            return json.loads(got.body)
         except Exception:
             return None
         finally:

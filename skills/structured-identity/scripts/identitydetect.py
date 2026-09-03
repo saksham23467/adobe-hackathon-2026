@@ -27,6 +27,7 @@ for _p in (_HERE, _LIB):
         sys.path.insert(0, _p)
 
 import entitygraph as eg  # noqa: E402
+from audit_common.net import same_registrable_site  # noqa: E402
 from audit_common.schema import (  # noqa: E402
     Concern,
     Confidence,
@@ -327,17 +328,26 @@ def detect_visible_mismatch(graph, visible) -> List[Observation]:
 # --------------------------------------------------------------------------
 # 9. Duplicate / conflicting entities
 # --------------------------------------------------------------------------
+def _names_on_same_host(nodes):
+    buckets: Dict[str, list] = {}
+    for n in nodes:
+        if not n.name():
+            continue
+        buckets.setdefault(_host(n.source_url), []).append(n)
+    return buckets
+
+
 def detect_duplicate_entity(graph) -> List[Observation]:
-    orgs = graph.organizations()
-    names = [(o.name(), o.source_url) for o in orgs if o.name()]
     conflicts = []
-    for i in range(len(names)):
-        for j in range(i + 1, len(names)):
-            a, b = names[i][0], names[j][0]
-            if eg.names_equivalent(a, b):
-                continue
-            if eg.normalize_name(a) != eg.normalize_name(b) and not eg.names_similar(a, b):
-                conflicts.append((a, b, names[i][1], names[j][1]))
+    for host_orgs in _names_on_same_host(graph.organizations()).values():
+        names = [(o.name(), o.source_url) for o in host_orgs]
+        for i in range(len(names)):
+            for j in range(i + 1, len(names)):
+                a, b = names[i][0], names[j][0]
+                if eg.names_equivalent(a, b) or eg.is_qualified_variant(a, b):
+                    continue
+                if eg.normalize_name(a) != eg.normalize_name(b) and not eg.names_similar(a, b):
+                    conflicts.append((a, b, names[i][1], names[j][1]))
     if not conflicts:
         return []
     a, b, ua, ub = conflicts[0]
@@ -360,13 +370,18 @@ def detect_duplicate_entity(graph) -> List[Observation]:
 # 17/16. Organization / product naming ambiguity (similar names)
 # --------------------------------------------------------------------------
 def detect_entity_ambiguous(graph) -> List[Observation]:
-    named = [(n.name(), n.source_url) for n in (graph.organizations() + graph.brands()) if n.name()]
     pairs = []
-    for i in range(len(named)):
-        for j in range(i + 1, len(named)):
-            a, b = named[i][0], named[j][0]
-            if a.strip().lower() != b.strip().lower() and eg.names_similar(a, b):
-                pairs.append((a, b, named[i][1], named[j][1]))
+    for host_nodes in _names_on_same_host(graph.organizations() + graph.brands()).values():
+        named = [(n.name(), n.source_url) for n in host_nodes]
+        for i in range(len(named)):
+            for j in range(i + 1, len(named)):
+                a, b = named[i][0], named[j][0]
+                if a.strip().lower() == b.strip().lower():
+                    continue
+                if eg.is_qualified_variant(a, b):
+                    continue
+                if eg.names_similar(a, b):
+                    pairs.append((a, b, named[i][1], named[j][1]))
     if not pairs:
         return []
     a, b, ua, ub = pairs[0]
@@ -466,7 +481,7 @@ def detect_canonical_mismatch(graph) -> List[Observation]:
         if not u.startswith("http") or not n.source_url:
             continue
         eh, ph = _host(u), _host(n.source_url)
-        if eh and ph and eh != ph:
+        if eh and ph and eh != ph and not same_registrable_site(u, ph):
             items.append({"url": n.source_url, "entity": n.name() or n.primary_type(),
                           "entity_host": eh, "page_host": ph})
             urls.append(n.source_url)

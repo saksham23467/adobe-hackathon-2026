@@ -179,6 +179,24 @@ def test_human_summary_headline_and_categories():
     assert "No blocking" in empty["headline"]
 
 
+def test_headline_matches_do_first_presence():
+    # Old failure mode: the headline always told the reader to "start with the
+    # items marked 'do first'", even when no finding carried that marker.
+    from audit_common.schema import SuggestedAction
+
+    with_marker = mkfind("access.homepage_unreachable", sev=Severity.HIGH)
+    with_marker.suggested_action = SuggestedAction(
+        summary="s", priority=Severity.HIGH, do_first=True)
+    assert "do first" in reconcile.human_summary([with_marker])["headline"]
+
+    without_marker = mkfind("engagement.dead_end_page", sev=Severity.MEDIUM)
+    without_marker.suggested_action = SuggestedAction(
+        summary="s", priority=Severity.MEDIUM, do_first=False)
+    hs = reconcile.human_summary([without_marker])
+    assert "do first" not in hs["headline"]
+    assert "top_priorities" in hs["headline"]
+
+
 # --------------------------------------------------------------------------
 # Target validation
 # --------------------------------------------------------------------------

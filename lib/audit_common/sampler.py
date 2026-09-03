@@ -14,6 +14,17 @@ from dataclasses import dataclass
 from typing import Dict, List
 
 
+# /in, /us, /de — a single 2-letter path is a locale homepage, not "other".
+_LOCALE_HOME_RE = re.compile(r"^/[a-z]{2}/?$")
+
+
+def is_locale_home_path(url_or_path: str) -> bool:
+    path = url_or_path or "/"
+    if "://" in path:
+        path = urllib.parse.urlsplit(path).path or "/"
+    return bool(_LOCALE_HOME_RE.match(path))
+
+
 # Common, stack-agnostic path signals -> canonical page-class labels.
 _CLASS_PATTERNS = [
     ("product", re.compile(r"/(products?|shop|item|p)/", re.I)),
@@ -28,7 +39,7 @@ _CLASS_PATTERNS = [
 
 def classify(url: str) -> str:
     path = urllib.parse.urlsplit(url).path or "/"
-    if path in ("", "/"):
+    if path in ("", "/") or is_locale_home_path(path):
         return "home"
     for label, pat in _CLASS_PATTERNS:
         if pat.search(path):

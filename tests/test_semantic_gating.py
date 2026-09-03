@@ -21,6 +21,7 @@ for _p in (HERE, ROOT, LIB):
 
 from audit_common.acquire import FixtureAcquirer, PageRecord
 from audit_common.schema import Confidence, Severity, Status
+from audit_common.sampler import classify, is_locale_home_path
 from audit_common.semantics import (
     apply_severity_gate,
     blocked_access_sentence,
@@ -151,6 +152,15 @@ def test_html_partials_are_utility_full_docs_are_not():
     assert not looks_like_html_partial(full)
     # Path shape, not hostname: /campaign stays a landing page so dead-ends still fire.
     assert classify_page_type("https://x.example/campaign", html=full) == "landing_page"
+
+
+def test_locale_root_is_homepage():
+    assert is_locale_home_path("/in")
+    assert is_locale_home_path("https://x.example/us")
+    assert not is_locale_home_path("/in-edu")
+    assert classify("https://x.example/in") == "home"
+    assert classify("https://x.example/in-edu") != "home"
+    assert classify_page_type("https://x.example/de") == "homepage"
     # A body-rooted page without nav is still a document, not a fragment.
     assert classify_page_type(
         "https://x.example/about-us",
@@ -166,6 +176,7 @@ def test_link_role_media_vs_navigation():
     assert link_role("/styles.css") == "media_asset"
     assert link_role("/about") == "navigation"
     assert link_role("/brochure.pdf") == "download"
+    assert link_role("/v/events/event.ics") == "download"
 
 
 # --------------------------------------------------------------------------
@@ -338,7 +349,7 @@ def _page(CrawlPage, urlnorm, url, **kw):
     return p
 
 
-def test_media_only_404s_are_low_relevance_broken():
+def test_media_only_404s_are_not_broken_pages():
     detectors, urlnorm, CrawlPage, CrawlResult = _crawl_mods()
     home = _page(CrawlPage, urlnorm, "https://s.com/",
                  internal_links=["https://s.com/clip.mp4"], body="<html></html>")
@@ -348,9 +359,7 @@ def test_media_only_404s_are_low_relevance_broken():
     r.pages[home.url] = home
     r.pages[media.url] = media
     findings = detectors.detect_broken_internal_links(r)
-    assert findings
-    assert findings[0].semantic_relevance == "low"
-    assert findings[0].metric.get("html_targets") == 0
+    assert findings == []
 
 
 def test_html_404_stays_high_relevance_broken():

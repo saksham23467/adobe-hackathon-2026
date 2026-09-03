@@ -11,7 +11,7 @@ established, adding:
     so an inference is never presented as an observation;
   * a "why this matters to AI systems" explanation per finding;
   * reader-facing sections: confidence_summary, top_priorities,
-    proactive_opportunities, crawl_summary, coverage_summary.
+    proactive_opportunities, coverage_summary.
 
 Pure, deterministic, standard-library only. Operates on the plain report dict
 (post new_report + human_summary) so the required Adobe schema stays intact and
@@ -314,6 +314,26 @@ def _confidence_summary(findings: List[Dict[str, Any]]) -> Dict[str, Any]:
     return {"by_confidence": by, "contested": contested, "note": note}
 
 
+def _first_url(f: Dict[str, Any]) -> str:
+    urls = f.get("affected_urls") or []
+    if urls:
+        return str(urls[0])
+    ev = f.get("evidence_detail") or f.get("evidence") or {}
+    if isinstance(ev, dict):
+        return (ev.get("scope") or "").split(",")[0].strip()
+    return ""
+
+
+def _one_sentence_evidence(f: Dict[str, Any]) -> str:
+    ev = f.get("evidence")
+    if isinstance(ev, str) and ev.strip():
+        return ev.strip()
+    detail = f.get("evidence_detail") if isinstance(f.get("evidence_detail"), dict) else {}
+    if isinstance(ev, dict):
+        detail = ev
+    return (detail.get("observed_fact") or detail.get("sentence") or "").strip()
+
+
 def _top_priorities(findings: List[Dict[str, Any]], limit: int = 5) -> List[Dict[str, Any]]:
     def rank_of(f: Dict[str, Any]) -> int:
         sa = f.get("suggested_action") or {}
@@ -327,12 +347,11 @@ def _top_priorities(findings: List[Dict[str, Any]], limit: int = 5) -> List[Dict
             {
                 "id": f.get("id"),
                 "title": f.get("title"),
-                "category": f.get("category", f.get("concern", "")),
-                "severity": f.get("severity"),
-                "confidence": f.get("confidence"),
-                "do_first": bool(sa.get("do_first")),
+                "url": _first_url(f),
+                "evidence": _one_sentence_evidence(f),
                 "action": sa.get("summary", ""),
-                "expected_effect": sa.get("expected_effect", ""),
+                "do_first": bool(sa.get("do_first")),
+                "severity": f.get("severity"),
             }
         )
     return out
@@ -359,21 +378,6 @@ def _proactive_opportunities(beyond: List[Dict[str, Any]]) -> List[Dict[str, Any
             }
         )
     return out
-
-
-def _crawl_summary(report: Dict[str, Any]) -> Dict[str, Any]:
-    cov = report.get("coverage", {}) or {}
-    meta = report.get("meta", {}) or {}
-    return {
-        "pages_discovered": cov.get("pages_discovered", 0),
-        "pages_sampled": cov.get("pages_sampled", 0),
-        "pages_rendered": cov.get("rendered", 0),
-        "page_classes": cov.get("page_classes", []),
-        "external_lookups": cov.get("external_lookups", 0),
-        "robots_respected": bool(cov.get("robots_respected", meta.get("robots_respected", False))),
-        "renderer_used": bool(meta.get("renderer")),
-        "runtime_s": meta.get("runtime_s"),
-    }
 
 
 def _coverage_summary(report: Dict[str, Any]) -> Dict[str, Any]:
@@ -405,42 +409,26 @@ def _executive_summary(
     site = report.get("site", "the site")
     summ = report.get("summary", {})
     total = summ.get("total_findings", 0)
-    crit, high, med = summ.get("critical", 0), summ.get("high", 0), summ.get("medium", 0)
-    by_cat = summ.get("by_category", {}) or {}
-
     overall = scores["overall_score"]
     if total == 0:
         return (
-            f"{site} scored {overall}/100 for AI readiness "
-            f"(discoverability {scores['discoverability_score']}, "
-            f"engagement {scores['engagement_score']}). No blocking defects were "
-            "found on the sampled pages; the proactive opportunities list ways to "
-            "strengthen how AI systems find, read, and trust the brand."
+            f"{site}: no blocking defects on the sampled pages "
+            f"(score {overall}/100). See proactive_opportunities for additive "
+            "ways to make the brand easier to cite."
         )
 
-    top_cats = sorted(by_cat.items(), key=lambda kv: (-kv[1], kv[0]))[:2]
-    cats_phrase = " and ".join(c for c, _ in top_cats) if top_cats else "several areas"
-    sev_bits = []
-    if crit:
-        sev_bits.append(f"{crit} critical")
-    if high:
-        sev_bits.append(f"{high} high")
-    if med:
-        sev_bits.append(f"{med} medium")
-    sev_phrase = ", ".join(sev_bits)
-
-    # The single most consequential lever, from the ranked top priority.
-    first = _top_priorities(findings, 1)
-    lead = first[0]["action"] if first else ""
-
-    return (
-        f"{site} scored {overall}/100 for AI readiness "
-        f"(discoverability {scores['discoverability_score']}, "
-        f"engagement {scores['engagement_score']}). The audit found {total} "
-        f"issue(s) ({sev_phrase}), concentrated in {cats_phrase}. These reduce how "
-        "reliably AI systems can discover, read, and quote the brand. "
-        + (f"Start with: {lead}" if lead else "See top_priorities for the recommended order.")
-    )
+    lines = [f"{site}: {total} issue(s). Do these next:"]
+    for i, p in enumerate(_top_priorities(findings, 5), start=1):
+        url = p.get("url") or ""
+        effect = ""
+        # expected_effect lives on the finding's action; recover from source.
+        src = next((f for f in findings if f.get("id") == p.get("id")), None)
+        if src:
+            effect = ((src.get("suggested_action") or {}).get("expected_effect") or "").strip()
+        where = f" at {url}" if url else ""
+        why = f" — {effect}" if effect else ""
+        lines.append(f"{i}. {p.get('action') or p.get('title')}{where}{why}")
+    return "\n".join(lines)
 
 
 # --------------------------------------------------------------------------
@@ -477,14 +465,5 @@ def enrich_report(report: Dict[str, Any]) -> Dict[str, Any]:
     report["proactive_opportunities"] = _proactive_opportunities(
         report.get("beyond_defect_recommendations", []) or []
     )
-    report["crawl_summary"] = _crawl_summary(report)
     report["coverage_summary"] = _coverage_summary(report)
-
-    # A small legend so a non-expert reader knows how to read each finding.
-    report["reading_guide"] = {
-        "observed_fact": "What the audit literally measured or saw in the page.",
-        "inferred_problem": "The defect concluded from that observation (an inference).",
-        "recommendation": "The suggested_action.implementation — a proposed fix, not a fact.",
-        "why_it_matters_to_ai": "How the defect affects AI retrieval and extraction.",
-    }
     return report

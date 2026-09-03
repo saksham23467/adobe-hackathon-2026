@@ -134,6 +134,29 @@ def test_not_attributed_price_detector():
     assert "fact.not_attributed_to_entity" in ids
 
 
+def test_whenever_marketing_is_not_opening_hours():
+    html = ("<h1>Create</h1><p>Create whenever you're inspired. "
+            "Join whenever works for you and start a project.</p>")
+    ids = {o.check_id for o in factdetect.run_all([rec("https://s/", html, "home")]) if o.status == Status.FAIL}
+    assert "fact.ambiguous_value" not in ids
+
+
+def test_promo_cashback_on_homepage_is_not_product_price():
+    html = ("<h1>Shop</h1><p>Get ₹10001 cashback with no cost EMI. "
+            "Minimum transaction ₹10000. Buy now.</p>")
+    ids = {o.check_id for o in factdetect.run_all([rec("https://s/", html, "home")]) if o.status == Status.FAIL}
+    assert "fact.not_attributed_to_entity" not in ids
+
+
+def test_fragment_include_images_are_not_alt_findings():
+    imgs = "".join(f"<img src='/i{i}.png' width='800' height='600'>" for i in range(4))
+    html = f"<div>{imgs}</div>"
+    ids = {o.check_id for o in factdetect.run_all(
+        [rec("https://s/fragments/promo", html)]
+    ) if o.status == Status.FAIL}
+    assert "fact.informational_images_no_alt" not in ids
+
+
 def test_behind_interaction_detector():
     hidden = "<div style='display:none'><p>" + ("policy detail " * 20) + "</p></div>"
     html = f"<h2>Returns policy</h2>{hidden}"

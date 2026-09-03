@@ -341,6 +341,14 @@ def human_summary(findings: List[Finding]) -> Dict[str, object]:
             parts.append(f"{high} high")
         if med:
             parts.append(f"{med} medium")
-        headline = (f"{len(findings)} issue(s) found ({', '.join(parts)}). "
-                    "Start with the items marked 'do first'.")
+        # Only point the reader at "do first" markers when some actually exist;
+        # otherwise the headline promised a marker the report never set (as
+        # happened on sites whose top finding fell just below the do-first bar).
+        has_do_first = any(
+            getattr(f.suggested_action, "do_first", False)
+            for f in findings if f.suggested_action is not None
+        )
+        lead = ("Start with the items marked 'do first'." if has_do_first
+                else "Start with the highest-ranked items in top_priorities.")
+        headline = f"{len(findings)} issue(s) found ({', '.join(parts)}). {lead}"
     return {"headline": headline, "by_category": by_category}

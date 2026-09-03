@@ -143,6 +143,29 @@ def test_broken_internal_links_confirmed():
     assert f[0].metric["targets"]["https://s.com/dead"] == 404
 
 
+def test_media_404_is_not_broken_internal_page():
+    home = mk_page("https://s.com/", internal_links=["https://s.com/media_abc.mp4"])
+    dead = mk_page("https://s.com/media_abc.mp4", status_code=404, is_html=False,
+                   content_type="video/mp4")
+    assert detectors.detect_broken_internal_links(mk_result([home, dead])) == []
+
+
+def test_important_noindex_quotes_robots_content():
+    about = mk_page("https://s.com/about", noindex=True, meta_robots="noindex, nofollow")
+    f = detectors.detect_noindex(mk_result([mk_page("https://s.com/"), about]))
+    assert f[0].check_id == "access.important_noindex"
+    assert 'content="noindex, nofollow"' in f[0].evidence
+    assert "https://s.com/about" in f[0].evidence
+
+
+def test_html_404_quotes_referrer_and_target():
+    home = mk_page("https://s.com/", internal_links=["https://s.com/dead"])
+    dead = mk_page("https://s.com/dead", status_code=404)
+    f = detectors.detect_broken_internal_links(mk_result([home, dead]))
+    assert "https://s.com/dead" in f[0].evidence
+    assert "HTTP 404" in f[0].evidence
+
+
 def test_unfetched_link_is_not_broken():
     home = mk_page("https://s.com/", internal_links=["https://s.com/unknown"])
     unknown = mk_page("https://s.com/unknown", fetched=False, status_code=0)
@@ -186,6 +209,31 @@ def test_important_noindex_confirmed():
 def test_single_ordinary_noindex_is_not_flagged():
     pages = [mk_page("https://s.com/"), mk_page("https://s.com/promo", noindex=True)]
     assert detectors.detect_noindex(mk_result(pages)) == []
+
+
+def test_catalog_leaf_noindex_is_not_important():
+    # A noindexed product/blog leaf is routine on large sites and must not be
+    # escalated to access.important_noindex.
+    pages = [
+        mk_page("https://s.com/"),
+        mk_page("https://s.com/products/widget-42", noindex=True),
+        mk_page("https://s.com/blog/2026/spring-sale", noindex=True),
+    ]
+    assert detectors.detect_noindex(mk_result(pages)) == []
+
+
+def test_prefix_collision_is_not_important():
+    # /supported-devices must not match the /support important pattern.
+    pages = [mk_page("https://s.com/"),
+             mk_page("https://s.com/supported-devices", noindex=True)]
+    assert detectors.detect_noindex(mk_result(pages)) == []
+
+
+def test_hyphenated_variant_is_important():
+    # /about-us is a real about page and should still be caught.
+    pages = [mk_page("https://s.com/"), mk_page("https://s.com/about-us", noindex=True)]
+    f = detectors.detect_noindex(mk_result(pages))
+    assert f[0].check_id == "access.important_noindex"
 
 
 # 15. important page discoverability

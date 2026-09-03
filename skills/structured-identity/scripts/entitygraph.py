@@ -317,6 +317,15 @@ def names_equivalent(a: str, b: str) -> bool:
     return bool(na and nb and na == nb)
 
 
+def is_qualified_variant(a: str, b: str) -> bool:
+    """True when one name is the other plus extra tokens (Acme vs Acme Support)."""
+    ta = set(normalize_name(a).split())
+    tb = set(normalize_name(b).split())
+    if not ta or not tb or ta == tb:
+        return False
+    return ta.issubset(tb) or tb.issubset(ta)
+
+
 def names_similar(a: str, b: str) -> bool:
     if names_equivalent(a, b):
         return False

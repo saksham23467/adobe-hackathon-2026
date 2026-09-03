@@ -159,17 +159,20 @@ def validate_target(url: str) -> str:
 
 def _read_robots_text(url: str, gate: SafetyGate) -> str:
     import urllib.parse
-    import urllib.request
+    from audit_common.curlfetch import http_get
 
     parts = urllib.parse.urlsplit(url)
     robots_url = f"{parts.scheme}://{parts.netloc}/robots.txt"
     try:
         gate.assert_readonly("GET")
-        req = urllib.request.Request(
-            robots_url, method="GET", headers={"User-Agent": gate.config.user_agent}
+        got = http_get(
+            robots_url,
+            user_agent=gate.config.user_agent,
+            timeout_s=gate.config.request_timeout_s,
+            max_bytes=200_000,
+            max_redirects=3,
         )
-        with urllib.request.urlopen(req, timeout=gate.config.request_timeout_s) as resp:
-            return resp.read(200_000).decode("utf-8", errors="replace")
+        return got.body if (got.status and 200 <= got.status < 300) else ""
     except Exception:
         return ""
 

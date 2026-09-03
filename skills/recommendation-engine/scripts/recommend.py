@@ -44,11 +44,14 @@ _SEV_W = {Severity.CRITICAL: 1.0, Severity.HIGH: 0.75, Severity.MEDIUM: 0.5}
 _CONF_W = {"high": 1.0, "medium": 0.75, "low": 0.5}
 _EFFORT_W = {"low": 1.0, "medium": 0.7, "high": 0.45}
 
-# Findings that gate everything downstream (machine cannot even read the site).
+# Only checks that actually prevent a later fix from working. A single
+# important page's noindex, or this audit's own UA being blocked, does not
+# make a viewport or identity edit depend on that finding.
 _ACCESS_BLOCKERS = {
-    "access.ai_ua_blocked", "access.our_ua_blocked", "access.global_noindex",
-    "access.global_disallow_all", "access.homepage_unreachable",
-    "access.class_noindex", "access.important_noindex", "access.robots_unreachable",
+    "access.ai_ua_blocked",
+    "access.global_noindex",
+    "access.global_disallow_all",
+    "access.homepage_unreachable",
 }
 # Findings that gate content-reading (facts/identity/freshness rely on rendered
 # content actually existing in the HTML).
@@ -60,7 +63,7 @@ _SITE_WIDE = {
     "access.ai_ua_blocked", "access.our_ua_blocked", "access.global_noindex",
     "access.global_disallow_all", "access.robots_missing", "access.robots_unreachable",
     "access.sitemap_missing", "access.sitemap_invalid", "access.homepage_unreachable",
-    "identity.no_organization_schema", "identity.duplicate_entity",
+    "identity.duplicate_entity",
     "identity.entity_ambiguous",
 }
 
@@ -173,7 +176,7 @@ _BEYOND_DEFECT = [
         "patch": "# llms.txt\nName: …\nWhat: …\nKey pages: /products, /pricing, /about",
         "effort": "low",
         "expected_effect": "Assistants get a clean, canonical brand summary.",
-        "guards_concern": "crawl_access",
+        "suppress_if_check": (),
         "requires_class": None,
     },
     {
@@ -188,7 +191,7 @@ _BEYOND_DEFECT = [
         "patch": None,
         "effort": "low",
         "expected_effect": "A verbatim-quotable brand description exists.",
-        "guards_concern": "identity",
+        "suppress_if_check": (),
         "requires_class": None,
     },
     {
@@ -203,7 +206,7 @@ _BEYOND_DEFECT = [
         "patch": '<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"…","acceptedAnswer":{"@type":"Answer","text":"…"}}]}</script>',
         "effort": "low",
         "expected_effect": "Common questions become directly quotable.",
-        "guards_concern": "fact_access",
+        "suppress_if_check": (),
         "requires_class": "faq",
     },
     {
@@ -217,7 +220,7 @@ _BEYOND_DEFECT = [
         "patch": None,
         "effort": "low",
         "expected_effect": "Recency is machine-readable and trustworthy.",
-        "guards_concern": "freshness",
+        "suppress_if_check": ("freshness.content_stale",),
         "requires_class": "article",
     },
 ]
@@ -231,23 +234,24 @@ def _page_classes(ctx) -> set:
 
 
 def _beyond_defect(findings: List[Finding], ctx) -> List[Dict[str, Any]]:
-    present_concerns = {f.concern.value for f in findings}
+    open_checks = {f.check_id for f in findings}
     classes = _page_classes(ctx)
     out: List[Dict[str, Any]] = []
     seen_summaries: set = set()
     for item in _BEYOND_DEFECT:
-        # Suppress if the area already has a live defect (that defect's fix wins).
-        if item.get("guards_concern") in present_concerns:
+        # Suppress only when the proactive item clones an open finding's check,
+        # not whenever that concern has any defect (old failure: one noindex
+        # wiped llms.txt and every other strengthening move).
+        if open_checks.intersection(item.get("suppress_if_check") or ()):
             continue
-        # Only surface when genuinely relevant to this site.
         req = item.get("requires_class")
         if req is not None and req not in classes:
             continue
-        if item["summary"] in seen_summaries:  # de-dupe proactive items
+        if item["summary"] in seen_summaries:
             continue
         seen_summaries.add(item["summary"])
         entry = {k: v for k, v in item.items()
-                 if k not in ("guards_concern", "requires_class")}
+                 if k not in ("suppress_if_check", "requires_class")}
         entry.setdefault("priority", "medium")
         out.append(entry)
     return out
@@ -289,13 +293,16 @@ def attach_actions(findings: List[Finding], ctx) -> Tuple[List[Finding], List[Di
         deps = [b.id for b in w["blockers"]]
         priority = _priority_bucket(w["score"])
         effort = tpl.get("effort", "medium")
-        do_first = (not deps) and effort in ("low", "medium") and w["score"] >= 42
+        do_first = (
+            f.severity == Severity.CRITICAL
+            or ((not deps) and effort in ("low", "medium") and w["score"] >= 42)
+        )
         f.related_findings = deps
         f.suggested_action = SuggestedAction(
             summary=tpl["what"],
             priority=priority,
             what=tpl["what"],
-            where=tpl.get("where", ""),
+            where=_where_with_scope(tpl.get("where", ""), f),
             why=tpl.get("why", ""),
             steps=list(tpl.get("how", [])),
             patch=tpl.get("patch"),
@@ -323,6 +330,21 @@ def _merge_where(primary_where: str, extra: str) -> str:
     if extra and extra not in parts:
         parts.append(extra)
     return "; ".join(parts)
+
+
+def _where_with_scope(template_where: str, f: Finding) -> str:
+    """Name the actual flagged URL alongside the template's generic guidance.
+
+    Old failure mode: ``where`` was purely template text ("Primary navigation",
+    "Site root"), so a single-page finding never told the reader which URL to
+    edit; only cross-page duplicates gained a concrete location via ``_dedup``.
+    Now every recommendation cites the page it was measured on.
+    """
+    scope = (f.evidence or {}).get("scope", "") if isinstance(f.evidence, dict) else ""
+    scope = (scope or "").strip()
+    if not scope or scope in (template_where or ""):
+        return template_where
+    return _merge_where(template_where, scope)
 
 
 def _dedup(findings: List[Finding]) -> None:

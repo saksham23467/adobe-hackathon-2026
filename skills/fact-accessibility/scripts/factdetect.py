@@ -38,7 +38,6 @@ from audit_common.schema import (  # noqa: E402
 
 _LOCKED_CATEGORIES = {"pricing", "hours", "contact", "specs", "menu", "location"}
 _INTERACTION_CATEGORIES = {"faq", "specs", "policy", "features", "pricing", "hours", "contact"}
-_ADD_TO_CART_RE = re.compile(r"\b(add to (?:cart|bag|basket)|buy now|checkout)\b", re.I)
 
 
 class Tier(str, Enum):
@@ -180,8 +179,8 @@ def detect_not_attributed(pages) -> List[Observation]:
     items, urls, arts = [], [], []
     for p in pages:
         d = p["doc"]
-        prices = fx.find_prices(d.text_visible)
-        product_intent = p.get("page_class") == "product" or bool(_ADD_TO_CART_RE.search(d.text_visible))
+        prices = fx.find_prices(d.text_visible, exclude_promo=True)
+        product_intent = p.get("page_class") == "product"
         has_micro = bool(re.search(r'itemtype=["\'][^"\']*Product', p.get("html") or "", re.I))
         if prices and product_intent and not d.has_type("Product") and not d.offer_prices() and not has_micro:
             snip = fx.snippet(d.text_visible, next(iter(str(int(x)) for x in prices), ""))
@@ -253,8 +252,11 @@ def detect_identity_not_textual(pages) -> List[Observation]:
 # Q2: readable text — content images without alt text
 # --------------------------------------------------------------------------
 def detect_images_no_alt(pages) -> List[Observation]:
+    from audit_common.semantics import classify_page_type
     items, urls = [], []
     for p in pages:
+        if classify_page_type(p["url"]) in ("utility", "error", "account"):
+            continue
         imgs = fx.meaningful_images(p["doc"].images)
         if len(imgs) < 3:
             continue

@@ -7,7 +7,7 @@ Guarantees enforced here (per the Adobe scope & guardrails):
   * No Authorization/Cookie credentials are attached to requests.
   * No authenticated areas, no destructive or site-altering actions.
 
-Only the Python standard library is used (urllib).
+Live GETs go through curl (see ``curlfetch``). robots.txt parsing uses stdlib.
 """
 
 from __future__ import annotations
@@ -162,16 +162,30 @@ class SafetyGate:
         if origin in self._robots:
             return self._robots[origin]
         # Lazy fetch only if nothing has cached robots yet. Fail closed on 5xx.
-        rp = urllib.robotparser.RobotFileParser()
-        rp.set_url(urllib.parse.urljoin(origin, "/robots.txt"))
+        robots_url = urllib.parse.urljoin(origin, "/robots.txt")
         try:
-            rp.read()
-            self._robots[origin] = rp
-            self._robots_status.setdefault(origin, "ok")
+            from .curlfetch import http_get
+            got = http_get(
+                robots_url,
+                user_agent=self.config.user_agent,
+                timeout_s=self.config.request_timeout_s,
+                max_bytes=200_000,
+                max_redirects=3,
+                accept="text/plain,*/*",
+            )
+            if got.error and not got.body:
+                self.cache_robots(robots_url, "", "unreachable")
+            elif got.status and 500 <= got.status:
+                self.cache_robots(robots_url, "", "unreachable")
+            elif got.status and 400 <= got.status < 500:
+                self.cache_robots(robots_url, "", "missing")
+            elif (got.body or "").strip():
+                self.cache_robots(robots_url, got.body, "ok")
+            else:
+                self.cache_robots(robots_url, "", "missing")
         except Exception:
-            self._robots[origin] = None
-            self._robots_status.setdefault(origin, "unreachable")
-        return self._robots[origin]
+            self.cache_robots(robots_url, "", "unreachable")
+        return self._robots.get(origin)
 
     def can_fetch(self, url: str) -> bool:
         """True if our user-agent may fetch url under robots.txt.

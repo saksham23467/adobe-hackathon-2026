@@ -1,18 +1,14 @@
-# Browser budget (render-extract)
+# Fetch budget (render-extract)
 
-Rendering is the runtime tent-pole. Constraints keep the audit < 5 minutes and
-deterministic:
+Live audits fetch with **curl** (GET, http/https). Playwright and Selenium
+are not used. Constraints keep the audit under 5 minutes:
 
-- Render at most `max_render` URLs (default 8): home + 1–2 per page-class.
-- Hard per-URL render timeout (default ~8s); on timeout → `inconclusive`.
-- Capped concurrency (default 4).
-- Renderer is optional. Preferred: Playwright Chromium. If unavailable, the
-  skill degrades to raw-HTTP-only and marks render checks `inconclusive`.
-- The renderer never executes site actions beyond loading and waiting for
-  network idle; no clicks that submit forms, no auth, no downloads.
+- Crawl at most `max_pages` URLs (default 40), polite delay between hosts.
+- Hard per-URL timeout (`request_timeout_s`, default 10s).
+- Byte cap per response (`max_bytes_per_page`).
+- Empty-shell / canvas / image-only checks run on the curl HTML. There is no
+  headless DOM, so JS-added text is not invented.
 
-## Installing the optional renderer
-```bash
-pip install playwright && python -m playwright install chromium
-```
-The marketplace runs fully without it.
+Fixture tests may include a second HTML snapshot to compare a known
+client-rendered view. That snapshot is never produced by a browser in the
+runtime.

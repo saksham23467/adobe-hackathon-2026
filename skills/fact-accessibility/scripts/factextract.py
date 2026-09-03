@@ -94,7 +94,7 @@ VAGUE_PHRASES = {
     ],
     "hours": [
         "flexible hours", "by appointment", "hours vary", "call for hours", "varies by season",
-        "whenever", "flexible schedule", "hours may vary",
+        "hours may vary",
     ],
     "location": [
         "serving the greater", "nationwide", "multiple locations", "serving the region",
@@ -103,9 +103,26 @@ VAGUE_PHRASES = {
 }
 
 
-def find_prices(text: str) -> Set[float]:
+_PROMO_NEAR = re.compile(
+    r"(cashback|no[- ]cost\s+emi|\bemi\b|minimum transaction|eligible cards?|"
+    r"instant cash|save up to|up to\s.{0,24}(off|cashback)|trade[- ]in|"
+    r"on orders?\s+(of|over))",
+    re.I,
+)
+_HOURS_CONTEXT = re.compile(
+    r"\b(hours|opening|open|closed|appointment|weekday|weekend)\b",
+    re.I,
+)
+
+
+def find_prices(text: str, *, exclude_promo: bool = False) -> Set[float]:
     out: Set[float] = set()
-    for m in _PRICE_RE.finditer(text or ""):
+    blob = text or ""
+    for m in _PRICE_RE.finditer(blob):
+        if exclude_promo:
+            window = blob[max(0, m.start() - 90): m.end() + 90]
+            if _PROMO_NEAR.search(window):
+                continue
         num = re.sub(r"[^\d.]", "", m.group(0))
         try:
             if num:
@@ -145,8 +162,11 @@ def find_phones(text: str) -> Set[str]:
 def vague_hit(text: str, category: str) -> Optional[str]:
     low = (text or "").lower()
     for phrase in VAGUE_PHRASES.get(category, []):
-        if phrase in low:
-            return phrase
+        if phrase not in low:
+            continue
+        if category == "hours" and not _HOURS_CONTEXT.search(snippet(text, phrase, width=70)):
+            continue
+        return phrase
     return None
 
 

@@ -109,7 +109,7 @@ def test_coverage_cap_blocks_excellent_on_thin_audit():
         "coverage": {"pages_discovered": 1, "pages_sampled": 1, "page_classes": ["home"],
                      "rendered": 0, "external_lookups": 0},
         "limitations": [{"check_id": "render.primary_content_js_only",
-                         "reason": "No rendered DOM was available (headless renderer not installed)"}],
+                         "reason": "JS-added text was not compared; only curl-fetched HTML was available"}],
         "meta": {},
     }
     out = presentation.enrich_report(report)

@@ -16,9 +16,7 @@ from __future__ import annotations
 import os
 import sys
 import time
-import urllib.error
 import urllib.parse
-import urllib.request
 import urllib.robotparser
 from collections import deque
 from dataclasses import dataclass, field
@@ -48,6 +46,7 @@ from audit_common.net import (  # noqa: E402
     trap_query,
 )
 from audit_common.semantics import worth_crawling  # noqa: E402
+from audit_common.curlfetch import http_get  # noqa: E402
 
 
 # --------------------------------------------------------------------------
@@ -65,19 +64,8 @@ class RawResponse:
     error: str = ""
 
 
-class _RedirectRecorder(urllib.request.HTTPRedirectHandler):
-    def __init__(self, max_redirects: int) -> None:
-        super().__init__()
-        self.hops: List[RedirectHop] = []
-        self.max_redirections = max_redirects
-
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        self.hops.append(RedirectHop(from_url=req.full_url, to_url=newurl, status=code))
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
-
-
 class LiveFetcher:
-    """Network fetcher. Every request goes through SafetyGate + public-HTTP checks."""
+    """Network fetcher. Every request is curl GET through SafetyGate."""
 
     def __init__(self, gate, max_redirects: int = 5) -> None:
         self.gate = gate
@@ -111,52 +99,35 @@ class LiveFetcher:
             return resp
         host = urllib.parse.urlsplit(url).netloc
         self.gate.rate.wait(host)
-        recorder = _RedirectRecorder(self.max_redirects)
-        opener = urllib.request.build_opener(recorder)
         accept = accept or "text/html,application/xhtml+xml,application/xml,text/xml;q=0.9,*/*;q=0.8"
-        req = urllib.request.Request(
-            url,
-            method="GET",
-            headers={"User-Agent": self.gate.config.user_agent, "Accept": accept},
-        )
         _t0 = time.monotonic()
         try:
-            with opener.open(req, timeout=self.gate.config.request_timeout_s) as r:
-                resp.status = getattr(r, "status", 200) or 200
-                resp.final_url = r.geturl()
-                resp.headers = {k.lower(): v for k, v in r.headers.items()}
-                resp.content_type = r.headers.get_content_type()
-                raw = r.read(self.gate.config.max_bytes_per_page)
-                charset = r.headers.get_content_charset() or "utf-8"
-                resp.body = raw.decode(charset, errors="replace")
-                resp.redirect_chain = recorder.hops
+            got = http_get(
+                url,
+                user_agent=self.gate.config.user_agent,
+                timeout_s=self.gate.config.request_timeout_s,
+                max_bytes=self.gate.config.max_bytes_per_page,
+                max_redirects=self.max_redirects,
+                accept=accept,
+            )
+            resp.status = got.status
+            resp.final_url = got.final_url or url
+            resp.headers = got.headers
+            resp.content_type = got.content_type
+            resp.body = got.body
+            resp.error = got.error
+            resp.redirect_chain = [
+                RedirectHop(from_url=a or url, to_url=b, status=c)
+                for a, b, c in got.redirect_chain
+            ]
             if fetching_robots:
-                # Share this snapshot so the gate does not re-fetch robots with a
-                # different UA (which sites like Wikipedia reject -> fail closed).
-                status = "ok" if (200 <= resp.status < 300 and resp.body.strip()) else "missing"
-                self.gate.cache_robots(url, resp.body if status == "ok" else "", status)
+                if got.error and not (200 <= resp.status < 300):
+                    status = "missing" if 400 <= resp.status < 500 else "unreachable"
+                    self.gate.cache_robots(url, "", status)
+                else:
+                    status = "ok" if (200 <= resp.status < 300 and resp.body.strip()) else "missing"
+                    self.gate.cache_robots(url, resp.body if status == "ok" else "", status)
             return resp
-        except urllib.error.HTTPError as e:
-            resp.status = e.code
-            resp.final_url = getattr(e, "url", url) or url
-            try:
-                resp.headers = {k.lower(): v for k, v in e.headers.items()}
-                resp.content_type = e.headers.get_content_type()
-                raw = e.read(self.gate.config.max_bytes_per_page)
-                charset = "utf-8"
-                try:
-                    charset = e.headers.get_content_charset() or "utf-8"
-                except Exception:
-                    pass
-                resp.body = raw.decode(charset, errors="replace")
-            except Exception:
-                pass
-            resp.redirect_chain = recorder.hops
-            if recorder.hops and len(recorder.hops) >= recorder.max_redirections:
-                resp.error = "too_many_redirects"
-            if fetching_robots:
-                status = "missing" if 400 <= resp.status < 500 else "unreachable"
-                self.gate.cache_robots(url, "", status)
         except Exception as e:  # noqa: BLE001
             resp.error = f"fetch_error:{type(e).__name__}"
             if fetching_robots:

@@ -26,7 +26,7 @@ from audit_common.schema import (
 def _sample_finding():
     return Finding(
         id="F-001",
-        check_id="identity.product_schema_missing",
+        check_id="identity.jsonld_malformed",
         concern=Concern.IDENTITY,
         mechanism="A",
         title="Product pages lack Product/Offer structured data",

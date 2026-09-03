@@ -60,7 +60,7 @@ false positive. Expectations are stored per fixture in `pages.json` under
 |---|---------|--------------|-------------------|
 | 1 | `perfect-static` | Perfect static site (precision anchor) | *(none)* |
 | 2 | `js-only-app` | Client-side-rendered SPA | `render.empty_initial_shell` |
-| 3 | `empty-shell` | Empty shell, no renderer available | `engagement.no_orientation` |
+| 3 | `empty-shell` | Empty shell (curl HTML only) | `render.empty_initial_shell`, `engagement.no_orientation` |
 | 4 | `facts-in-images` | Menu/prices only in images | `fact.informational_images_no_alt` |
 | 5 | `missing-canonical` | Same content at many URL forms, no canonical | `access.duplicate_url_variants` |
 | 6 | `conflicting-canonical` | Canonical → 404 and cross-host canonical | `access.canonical_to_error`, `access.canonical_inconsistent` |

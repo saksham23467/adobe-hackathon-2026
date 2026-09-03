@@ -192,6 +192,14 @@ def test_entrypoint_corroborated_zero_findings():
     assert [o for o in obs if o.status == Status.FAIL] == []
 
 
+def test_no_backend_states_external_agreement_not_checked():
+    obs = freshdetect.run_all(load("fresh-corroborated"), corr=None, now=NOW)
+    notes = [o for o in obs if o.status == Status.INCONCLUSIVE]
+    assert notes
+    assert any("external agreement not checked" in (o.evidence_sentence or "")
+               for o in notes)
+
+
 def test_entrypoint_ambiguous_flags_entity():
     entry = _load_entry()
     obs = entry.detect(_ctx("fresh-ambiguous"))

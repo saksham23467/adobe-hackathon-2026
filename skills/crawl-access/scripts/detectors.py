@@ -100,17 +100,36 @@ class CrawlFinding:
 
 
 # Important-page URL patterns (used conservatively, not to demand their presence).
-_IMPORTANT_PATTERNS = ("/about", "/contact", "/pricing", "/product", "/products",
-                       "/services", "/blog", "/faq", "/support")
+# Deliberately excludes high-cardinality catalog/feed roots such as /product,
+# /products and /blog: on a real site those hold thousands of leaf pages, so a
+# single noindex or orphan among them is routine, not an "important page" defect.
+_IMPORTANT_PATTERNS = ("/about", "/contact", "/pricing", "/services",
+                       "/faq", "/support", "/help")
 
 _LONG_REDIRECT_THRESHOLD = 4
 _DEEP_THRESHOLD = 4
 _MANY_PARAMS = 4
 
 
+def _robots_quote(page) -> str:
+    meta = (getattr(page, "meta_robots", "") or "").strip()
+    hdr = (getattr(page, "x_robots_tag", "") or "").strip()
+    if meta:
+        return f'<meta name="robots" content="{meta}">'
+    if hdr:
+        return f"X-Robots-Tag: {hdr}"
+    return "a noindex directive"
+
+
 def _is_important(url: str) -> bool:
-    path = urllib.parse.urlsplit(url).path.lower()
-    return any(path == p or path.startswith(p + "/") or path.startswith(p) for p in _IMPORTANT_PATTERNS)
+    path = urllib.parse.urlsplit(url).path.lower().rstrip("/") or "/"
+    # Match the page itself (/about), a sub-path (/about/team) or a hyphenated
+    # variant (/about-us) — but never a bare prefix collision (/aboutthe-... or
+    # /supported-devices), which the old `startswith(p)` test wrongly accepted.
+    return any(
+        path == p or path.startswith(p + "/") or path.startswith(p + "-")
+        for p in _IMPORTANT_PATTERNS
+    )
 
 
 _AI_PROBE_PATHS = (
@@ -532,31 +551,34 @@ def detect_broken_internal_links(result: CrawlResult, ctx=None) -> List[CrawlFin
                     slot["sources"].append(page.url)
     out: List[CrawlFinding] = []
     if broken:
-        n_html = sum(
-            1 for d in broken.values()
+        html_broken = {
+            u: d for u, d in broken.items()
             if (d.get("resource_type") or "html_document") == "html_document"
-        )
-        # A 404 image/video is a real missing file, but it is not a broken
-        # *page* in the discoverability sense. Keep the observation; lower
-        # relevance so it cannot dominate severity/score.
-        relevance = "high" if n_html else "low"
-        out.append(CrawlFinding(
-            check_id="access.broken_internal_links",
-            tier=Tier.CONFIRMED,
-            title="Broken internal links (404/410/5xx targets)",
-            evidence=(
-                f"{len(broken)} internal link target(s) return 404, 410, or 5xx "
-                f"when fetched; crawlers hit dead ends and lose reachable content."
-            ),
-            metric={
-                "targets": {u: d["status"] for u, d in broken.items()},
-                "outcomes": {u: d["outcome"] for u, d in broken.items()},
-                "html_targets": n_html,
-            },
-            urls=list(broken.keys()),
-            evidence_tier="confirmed",
-            semantic_relevance=relevance,
-        ))
+        }
+        # A 404 image/video is a missing file, not a broken discoverable page.
+        # Old failure: Adobe-class sites led with .mp4 404s as high findings.
+        if html_broken:
+            sample_url = sorted(html_broken)[0]
+            sample = html_broken[sample_url]
+            srcs = sample.get("sources") or []
+            src_bit = f"{srcs[0]} → " if srcs else ""
+            out.append(CrawlFinding(
+                check_id="access.broken_internal_links",
+                tier=Tier.CONFIRMED,
+                title="Broken internal links (404/410/5xx targets)",
+                evidence=(
+                    f"{len(html_broken)} HTML page(s) return 404, 410, or 5xx "
+                    f"(e.g. {src_bit}{sample_url} → HTTP {sample['status']})."
+                ),
+                metric={
+                    "targets": {u: d["status"] for u, d in html_broken.items()},
+                    "outcomes": {u: d["outcome"] for u, d in html_broken.items()},
+                    "html_targets": len(html_broken),
+                },
+                urls=list(html_broken.keys()),
+                evidence_tier="confirmed",
+                semantic_relevance="high",
+            ))
     if blocked:
         sample_url = sorted(blocked.keys())[0]
         sample = blocked[sample_url]
@@ -629,24 +651,32 @@ def detect_noindex(result: CrawlResult, ctx=None) -> List[CrawlFinding]:
     indexable = [p for p in html]
     noindexed = [p for p in html if p.noindex]
     if len(indexable) >= 2 and len(noindexed) == len(indexable):
+        quote = _robots_quote(noindexed[0])
         findings.append(CrawlFinding(
             check_id="access.global_noindex",
             tier=Tier.CONFIRMED,
             title="Every crawled page is set to noindex",
-            evidence=f"All {len(indexable)} crawled HTML pages carry a noindex directive (meta robots or X-Robots-Tag) — the site asks to be excluded from indexes entirely.",
-            metric={"count": len(noindexed)},
+            evidence=(
+                f"All {len(indexable)} crawled HTML pages carry noindex "
+                f"(e.g. {noindexed[0].url} has {quote})."
+            ),
+            metric={"count": len(noindexed), "quoted_robots": quote},
             urls=[p.url for p in noindexed],
         ))
         return findings
-    important_noindex = [p.url for p in noindexed if p.url == result.entry_url or _is_important(p.url)]
-    if important_noindex:
+    important = [p for p in noindexed if p.url == result.entry_url or _is_important(p.url)]
+    if important:
+        quote = _robots_quote(important[0])
         findings.append(CrawlFinding(
             check_id="access.important_noindex",
             tier=Tier.CONFIRMED,
             title="Important page(s) set to noindex",
-            evidence=f"{len(important_noindex)} important page(s) (homepage or key section) carry a noindex directive, removing them from search/AI indexes.",
-            metric={"count": len(important_noindex)},
-            urls=important_noindex,
+            evidence=(
+                f"{len(important)} important page(s) carry noindex "
+                f"(e.g. {important[0].url} has {quote})."
+            ),
+            metric={"count": len(important), "quoted_robots": quote},
+            urls=[p.url for p in important],
         ))
     return findings
 

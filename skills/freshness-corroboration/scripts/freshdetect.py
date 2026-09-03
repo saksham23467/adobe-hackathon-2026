@@ -176,7 +176,8 @@ def detect_unsupported_claims(sc: C.SiteClaims) -> List[Observation]:
 def detect_external(sc: C.SiteClaims, corr, site_host: str = "") -> List[Observation]:
     if corr is None:
         return [_note("freshness.claim_conflict", Concern.FRESHNESS, Method.EXTERNAL,
-                      Status.INCONCLUSIVE, "external corroboration not performed (no backend/budget)",
+                      Status.INCONCLUSIVE,
+                      "external agreement not checked (no corroboration backend/budget)",
                       {"classification": "insufficient_evidence"})]
     if not sc.brand_name:
         return [_note("freshness.claim_conflict", Concern.FRESHNESS, Method.EXTERNAL,

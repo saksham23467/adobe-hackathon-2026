@@ -408,28 +408,6 @@ TEMPLATES: Dict[str, Dict[str, Any]] = {
         "medium", 0.65, "Gated facts become part of the readable page.",
     ),
     # -------------------------------------------------------------- identity
-    "identity.product_schema_missing": T(
-        "Add valid Product/Offer JSON-LD to the product template.",
-        "The product page template, rendered in the initial HTML.",
-        "Without Product/Offer structured data, product facts have no clean, "
-        "attributable machine representation.",
-        ["Emit Product with name, image, description and offers "
-         "(price, priceCurrency, availability).",
-         "Keep schema values equal to the visible values."],
-        "medium", 0.75, "Each product gains a clean, quotable structured fact.",
-        '<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"…","offers":{"@type":"Offer","price":"…","priceCurrency":"USD"}}</script>',
-    ),
-    "identity.no_organization_schema": T(
-        "Add Organization JSON-LD whose identity matches the visible brand.",
-        "The home/about template, in the initial HTML.",
-        "With no Organization entity, machines cannot resolve or disambiguate the "
-        "brand behind the site.",
-        ["Emit Organization with name, url, logo and sameAs.",
-         "Ensure name/url match the visible identity and canonical domain.",
-         "Add WebSite markup linking to the Organization."],
-        "low", 0.75, "Machines can identify and disambiguate the brand.",
-        '<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"…","url":"https://example.com","sameAs":["https://www.linkedin.com/company/…"]}</script>',
-    ),
     "identity.jsonld_malformed": T(
         "Fix the invalid JSON-LD so it parses.",
         "The script[type=application/ld+json] block flagged.",

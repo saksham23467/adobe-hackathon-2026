@@ -43,12 +43,11 @@ Added top-level sections:
   100 and clamped. Discoverability aggregates crawl/render/fact/identity/
   freshness; engagement is scored separately so one axis never masks the other.
 - `confidence_summary` — counts by confidence + contested count + a note.
-- `top_priorities` — the ranked shortlist (id, title, category, severity,
-  `do_first`, action, expected_effect).
+- `top_priorities` — the ranked shortlist (id, title, url, one-sentence
+  evidence, action, `do_first`).
 - `proactive_opportunities` — reader-facing form of
   `beyond_defect_recommendations`.
-- `crawl_summary`, `coverage_summary` — what was fetched/sampled/rendered.
-- `reading_guide` — how to read the three epistemic tiers below.
+- `coverage_summary` — what was sampled/rendered.
 
 Every finding gains a strict **observed fact / inferred problem / recommendation**
 separation so an inference is never presented as an observation:

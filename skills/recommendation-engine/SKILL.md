@@ -27,6 +27,17 @@ fixes, and adds relevant proactive recommendations.
 ## When to use
 After compilation, before the orchestrator emits the report.
 
+## Inputs
+- Compiled `findings[]` from the orchestrator (catalog-valid).
+- Audit context (`ctx`) for page-classes and coverage used by beyond-defect gates.
+
+## Procedure
+1. `scripts/recommend.py` attaches a `suggested_action` to each finding from
+   `scripts/templates.py`.
+2. Rank by the multi-factor score; flag `do_first` for critical items or
+   low-effort high-score items with no blockers.
+3. De-duplicate shared fixes; emit relevant `beyond_defect_recommendations`.
+
 ## The eight questions each action answers
 1. **what** — exactly what should change
 2. **where** — where it should change

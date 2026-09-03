@@ -74,6 +74,35 @@ def test_hidden_h1_detected():
     assert pv.hidden_h1_only()
 
 
+def test_a11y_homepage_h1_is_not_hidden_orientation():
+    html = "<main><h1 hidden>Adobe homepage</h1><p>Welcome to the product.</p></main>"
+    ids = fail_ids([rec("https://x.example/", html, "home")])
+    assert "engagement.content_hidden_interaction" not in ids
+
+
+def test_real_hidden_value_prop_is_still_flagged():
+    html = "<main><h1 hidden>Secret value prop</h1><p>text</p></main>"
+    ids = fail_ids([rec("https://x.example/", html, "home")])
+    assert "engagement.content_hidden_interaction" in ids
+
+
+def test_sibling_host_viewport_is_not_the_audited_site():
+    home = rec(
+        "https://www.brand.example/",
+        "<head><meta name='viewport' content='width=device-width'></head>"
+        "<body><header><nav aria-label='Primary'><a href='/'>Home</a></nav></header>"
+        "<main><h1>Tools</h1><a href='/p'>Get started</a></main></body>",
+        "home",
+    )
+    sibling = rec(
+        "https://shop.brand.example/",
+        "<head><meta name='viewport' content='width=device-width, user-scalable=no'>"
+        "</head><body><h1>Shop</h1></body>",
+        "other",
+    )
+    assert "engagement.no_viewport_meta" not in fail_ids([home, sibling])
+
+
 def test_internal_vs_external_and_contact_affordance():
     html = ("<a href='/about'>About</a><a href='https://other.example/x'>Ext</a>"
             "<a href='mailto:hi@x.example'>Email</a>")
@@ -147,6 +176,21 @@ def test_consistent_naming_not_flagged():
     b = "<nav aria-label='Primary'><a href='/plans'>Plans</a></nav><h1>B</h1>"
     ids = fail_ids([rec("https://x/", a, "home"), rec("https://x/b", b, "about")])
     assert "engagement.inconsistent_naming" not in ids
+
+
+def test_a11y_window_suffix_is_same_nav_label():
+    a = "<nav aria-label='Primary'><a href='/help'>Shopping Help</a></nav><h1>A</h1>"
+    b = ("<nav aria-label='Primary'><a href='/help'>Shopping Help (opens in new window)</a>"
+         "</nav><h1>B</h1>")
+    ids = fail_ids([rec("https://x/", a, "home"), rec("https://x/b", b, "about")])
+    assert "engagement.inconsistent_naming" not in ids
+
+
+def test_calendar_file_link_is_not_unclear_nav():
+    html = ("<nav><a href='/v/events/event.ics'></a>"
+            "<a href='/about'>About</a></nav><h1>Home</h1>")
+    ids = fail_ids([rec("https://x/", html, "home")])
+    assert "engagement.unclear_navigation" not in ids
 
 
 def test_dead_end_page():

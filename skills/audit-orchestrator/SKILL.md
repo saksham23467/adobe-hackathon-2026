@@ -14,7 +14,7 @@ license: MIT
 metadata:
   role: entrypoint
   version: "1.0.0"
-allowed-tools: Bash(python3:*) Read WebFetch
+allowed-tools: Bash(python3:*) Bash(curl:*) Read
 ---
 
 # Audit Orchestrator (entrypoint)
@@ -44,8 +44,8 @@ validity.
 4. **Invoke the relevant audit skills** — the cache-consuming detectors
    `fact-accessibility`, `structured-identity`, `engagement-orientation`, and,
    if time and network remain, `freshness-corroboration` (fail-soft).
-5. **Collect normalized findings** — compile observations: drop anything not in
-   the closed check catalog, keep only `fail` (inconclusive → `limitations`),
+5. **Collect normalized findings** (`scripts/compile.py`) — drop anything not
+   in the closed check catalog, keep only `fail` (inconclusive → `limitations`),
    assign severity by rule (capped by confidence), stable IDs.
 6-9. **Reconcile** (`scripts/reconcile.py`) — never a blind concatenation:
    **deduplicate/merge** overlapping findings across skills (strongest evidence
@@ -59,12 +59,18 @@ validity.
    `by_category`, then run the presentation layer (`scripts/presentation.py`) to
    add scores (`overall_score`, `discoverability_score`, `engagement_score`), an
    `executive_summary`, `top_priorities`, `confidence_summary`,
-   `proactive_opportunities`, `crawl_summary`/`coverage_summary`, and — per
+   `proactive_opportunities`, `coverage_summary`, and — per
    finding — a strict **observed fact / inferred problem / recommendation**
    separation plus a "why this matters to AI systems" explanation. Validate
    against `config/report_schema.json` and emit it. Even on partial runs
    (timeout / missing renderer), emit a valid report with a populated
    `limitations` array.
+
+## Scripts
+- `scripts/run_audit.py` — marketplace entrypoint (validate, compose, emit).
+- `scripts/compile.py` — catalog-gate observations into findings.
+- `scripts/reconcile.py` — merge overlaps and mark contested findings.
+- `scripts/presentation.py` — scores, headline, observed/inferred/recommendation.
 
 ## Running it
 ```bash
@@ -75,14 +81,14 @@ python3 skills/audit-orchestrator/scripts/run_audit.py --fixture tests/fixtures/
 The script prints a report to stdout that satisfies the required schema and runs
 even without an LLM present.
 
-## Output
+## Outputs
 A single JSON audit report. Required floor (Adobe handout): `site`,
 `audited_at`, `summary` (counts by severity), `findings[]` each with `id`,
 `title`, `severity`, **`evidence` as a non-empty string**, and
 `suggested_action.{summary,priority}`. Extensions (allowed): `evidence_detail`
 (structured observed-fact / measurement), `executive_summary`, scores,
 `confidence_summary`, `top_priorities`, `proactive_opportunities`,
-`crawl_summary`, `coverage_summary`, and per-finding `category`, `confidence`,
+`coverage_summary`, and per-finding `category`, `confidence`,
 `mechanism`, `affected_urls`, `impact`, `inferred_problem`,
 `why_it_matters_to_ai`. Observed fact stays distinct from the inference and
 the fix. See `references/report_contract.md`.

@@ -153,7 +153,11 @@ def detect_content_hidden_interaction(model: J.JourneyModel) -> List[Observation
         return []
     if not home.hidden_h1_only():
         return []
-    hidden = next((h for h in home.h1s if h), "")
+    hidden = next((h for h in home.h1s if h and not _is_chrome_h1(h)), "")
+    if not hidden:
+        # Old failure: a visually-hidden "… homepage" / skip-target H1 was
+        # treated as gated orientation content.
+        return []
     return [_obs(
         "engagement.content_hidden_interaction", [home.url], LIKELY, "understanding",
         "The entry page's main heading ('%s') exists only inside hidden / "
@@ -208,9 +212,13 @@ def detect_unclear_navigation(model: J.JourneyModel) -> List[Observation]:
                 continue
             # Media/embed hrefs are not navigation elements (a silent <a> around
             # an .mp4 / .svg is an asset, not an unclear menu item).
-            if link_role(l.href, l.label) == "media_asset":
+            role = link_role(l.href, l.label)
+            if role in ("media_asset", "download"):
                 continue
             label = _norm(l.label)
+            # Dummy / scheme hrefs with no label are not navigation defects.
+            if role == "skip" and not label:
+                continue
             if not label:
                 empties.append((p.url, l.href))
             elif label in J._NON_DESCRIPTIVE:
@@ -362,6 +370,38 @@ _DETECTORS = [
 ]
 
 
+_CHROME_H1 = re.compile(
+    r"^(home(page)?|skip( to( main)? content)?|menu|navigation|search|logo)$",
+    re.I,
+)
+
+
+def _is_chrome_h1(text: str) -> bool:
+    t = re.sub(r"\s+", " ", (text or "")).strip()
+    if not t:
+        return True
+    if _CHROME_H1.match(t):
+        return True
+    return t.lower().endswith(" homepage")
+
+
+def _same_audit_host(records):
+    """Keep pages on the audited host. Sibling properties (shop.brand.com
+    vs www.brand.com) are not the entry experience."""
+    try:
+        from audit_common.net import hostname_of
+    except Exception:
+        return records
+    if not records:
+        return records
+    homes = [r for r in records if getattr(r, "page_class", "") == "home"]
+    seed = homes[0] if homes else records[0]
+    host = hostname_of(getattr(seed, "url", "") or "")
+    if not host:
+        return records
+    return [r for r in records if hostname_of(getattr(r, "url", "") or "") == host]
+
+
 def _norm(s: str) -> str:
     return re.sub(r"\s+", " ", (s or "")).strip().lower()
 
@@ -376,6 +416,7 @@ def _uniq(seq):
 
 
 def run_all(records) -> List[Observation]:
+    records = _same_audit_host(records)
     model = J.build_model(records)
     if not model.pages:
         return []

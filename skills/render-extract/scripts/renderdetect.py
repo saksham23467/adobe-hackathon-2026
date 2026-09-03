@@ -21,7 +21,10 @@ Standard library only.
 from __future__ import annotations
 
 import os
+import re
 import sys
+import unicodedata
+import urllib.parse
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional
@@ -46,10 +49,16 @@ from audit_common.schema import (  # noqa: E402
 MIN_MEANINGFUL = 40      # tokens that constitute "major" content
 SHELL_MAX_RAW = 15       # raw text at/below this is an "empty shell"
 GAP_FAIL = 0.6           # rendered visible text >> raw text
+GAP_FAIL_HIGH = 0.85     # when raw HTML already has substantial text
+SUBSTANTIAL_RAW = 280    # raw tokens that already count as a real page
 TEXT_STARVED = 20        # a rendered page below this has almost no machine text
 HIDDEN_FRACTION = 0.4    # share of DOM text that is hidden from the a11y tree
 SCRIPT_HEAVY = 12        # many scripts (informational only)
 _SNIPPET = 240
+_UTILITY_PATH = re.compile(
+    r"/(search|cart|bag|basket|checkout|account|login|signin|sign-in)(/|$)",
+    re.I,
+)
 
 
 class Tier(str, Enum):
@@ -126,8 +135,11 @@ def build_views(records) -> List[RenderView]:
         raw_t = raw.all_tokens
         vis = rend.visible_tokens
         gap = 1.0 - (raw_t / vis) if vis > 0 else 0.0
-        raw_lower = raw.text_all.lower()
-        missing = [h for (_lvl, h) in rend.headings if h.lower() not in raw_lower]
+        raw_folded = _fold_heading_haystack(raw.text_all)
+        missing = [
+            h for (_lvl, h) in rend.headings
+            if not _is_chrome_heading(h) and _fold_heading(h) not in raw_folded
+        ]
         views.append(RenderView(
             url=r.url,
             page_class=getattr(r, "page_class", "other"),
@@ -144,6 +156,30 @@ def build_views(records) -> List[RenderView]:
 
 
 # --- per-view classification (mutual exclusion of the major categories) ---
+def _fold_heading(h: str) -> str:
+    h = unicodedata.normalize("NFKC", h or "")
+    return re.sub(r"[\u00a0\u202f\u2007\s]+", " ", h).strip().lower()
+
+
+def _fold_heading_haystack(text: str) -> str:
+    return _fold_heading(text)
+
+
+def _is_chrome_heading(h: str) -> bool:
+    t = (h or "").strip()
+    if "\n" in t or "\r" in t:
+        return True
+    return bool(re.search(r"[+−–—]\s*$", t))
+
+
+def _skip_render_url(url: str) -> bool:
+    path = urllib.parse.urlsplit(url).path or "/"
+    if _UTILITY_PATH.search(path):
+        return True
+    from audit_common.semantics import classify_page_type
+    return classify_page_type(url) in ("utility", "account", "search")
+
+
 def _is_empty_shell(v: RenderView) -> bool:
     return (
         v.raw_tokens <= SHELL_MAX_RAW
@@ -153,6 +189,10 @@ def _is_empty_shell(v: RenderView) -> bool:
 
 
 def _is_primary_gap(v: RenderView) -> bool:
+    if _skip_render_url(v.url):
+        return False
+    if v.raw_tokens >= SUBSTANTIAL_RAW:
+        return v.gap_ratio >= GAP_FAIL_HIGH and v.added_tokens >= MIN_MEANINGFUL
     return v.gap_ratio >= GAP_FAIL and v.added_tokens >= MIN_MEANINGFUL
 
 
@@ -348,4 +388,74 @@ def run_all(records) -> List[Observation]:
     out += detect_text_as_image(views)
     out += detect_canvas_content(views)
     out += detect_excessive_scripts(views, shell_urls, gap_urls)
+    return out
+
+
+def _embedded_state_tokens(html: str) -> int:
+    try:
+        from audit_common.acquire import extract_embedded_state
+        return tokens(extract_embedded_state(html))
+    except Exception:
+        return 0
+
+
+def _raw_view(record) -> Optional[RenderView]:
+    html = getattr(record, "raw_html", "") or ""
+    if not html:
+        return None
+    raw = extract(html)
+    raw_t = raw.all_tokens + _embedded_state_tokens(html)
+    return RenderView(
+        url=record.url,
+        page_class=getattr(record, "page_class", "other"),
+        raw=raw,
+        rend=raw,
+        raw_tokens=raw_t,
+        rend_visible=raw.visible_tokens,
+        rend_all=raw.all_tokens,
+        gap_ratio=0.0,
+        added_tokens=0,
+    )
+
+
+def _is_raw_empty_shell(v: RenderView) -> bool:
+    """Empty app shell from the HTTP body alone — no browser required.
+
+    A no-JS fetcher (curl, many AI crawlers) stores this HTML. If it is a
+    mount node plus scripts and almost no text, the page is invisible.
+    """
+    if v.raw_tokens > SHELL_MAX_RAW:
+        return False
+    return bool(v.raw.has_mount or v.raw.script_count >= 1)
+
+
+def run_raw_http(records) -> List[Observation]:
+    """Detect machine-unreadable pages from curl-fetched HTML only."""
+    views = [v for v in (_raw_view(r) for r in records) if v is not None]
+    if not views:
+        return []
+    shell_urls = {v.url for v in views if _is_raw_empty_shell(v)}
+    out: List[Observation] = []
+    if shell_urls:
+        vs = [v for v in views if v.url in shell_urls]
+        metric = {
+            "pages": [v.page_metric() for v in vs],
+            "mechanism": (
+                "The HTTP HTML is an empty app shell (mount node + scripts). "
+                "curl and other no-JS fetchers store a blank page."
+            ),
+        }
+        ev = (
+            f"{len(vs)} page(s) return an essentially empty HTML shell "
+            f"(≤{SHELL_MAX_RAW} words, scripts/mount present) on the curl GET; "
+            f"no-JS crawlers and many AI fetchers see nothing."
+        )
+        out.append(_obs(
+            "render.empty_initial_shell", Tier.CONFIRMED, [v.url for v in vs],
+            metric, ev, artifacts=[a for v in vs for a in v.artifacts()],
+        ))
+    out += detect_content_behind_interaction(views, shell_urls)
+    out += detect_text_as_image(views)
+    out += detect_canvas_content(views)
+    out += detect_excessive_scripts(views, shell_urls, set())
     return out

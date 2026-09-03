@@ -372,15 +372,6 @@
       "description": "A fact category (FAQ/specs/policies) exists only inside hidden, interaction-gated DOM, so it is absent from the initial readable text."
     },
     {
-      "check_id": "identity.product_schema_missing",
-      "concern": "identity",
-      "mechanism": "A",
-      "default_severity": "high",
-      "default_confidence": "high",
-      "title": "Product pages lack Product/Offer structured data",
-      "description": "Product templates contain no valid schema.org Product/Offer markup."
-    },
-    {
       "check_id": "identity.schema_invalid",
       "concern": "identity",
       "mechanism": "A",
@@ -388,15 +379,6 @@
       "default_confidence": "high",
       "title": "Structured data is present but invalid",
       "description": "JSON-LD/microdata is present but fails schema.org validity (missing required properties or mismatched content)."
-    },
-    {
-      "check_id": "identity.no_organization_schema",
-      "concern": "identity",
-      "mechanism": "D",
-      "default_severity": "medium",
-      "default_confidence": "high",
-      "title": "No Organization/WebSite entity markup",
-      "description": "The site lacks Organization/WebSite JSON-LD that names the brand entity for machines."
     },
     {
       "check_id": "identity.entity_ambiguous",

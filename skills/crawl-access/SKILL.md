@@ -14,7 +14,7 @@ license: MIT
 metadata:
   concern: crawl_access
   mechanism: "A,B"
-allowed-tools: Bash(python3:*) WebFetch Read
+allowed-tools: Bash(python3:*) Bash(curl:*) Read
 ---
 
 # Crawl & Access
@@ -26,14 +26,27 @@ reach the important pages, and read a clean set of URLs?
 As the first detection stage, before rendering. It owns the crawl and produces a
 normalized `CrawlResult` plus tiered observations for the `access.*` checks.
 
+## Inputs
+- `ctx.entry_url`, `ctx.gate`, crawl settings from `ctx.config`.
+- Optional `ctx.fixture_dir` for hermetic runs.
+
+## Procedure
+1. Choose a fetcher (live / fixture).
+2. `scripts/crawler.py` runs a bounded, robots-respecting crawl
+   (`scripts/html_parse.py`, `scripts/urlnorm.py`).
+3. Build a `scripts/crawl_result.py` `CrawlResult`; `scripts/detectors.py` emit
+   tiered observations.
+4. `scripts/detect.py` returns observations and attaches the crawl to `ctx`.
+
 ## The engine (`scripts/`)
-- `urlnorm.py` — URL normalization, lossy dedup keys, variant/trap detection.
-- `crawl_result.py` — the normalized `CrawlResult` (pages, robots, sitemaps,
+- `scripts/urlnorm.py` — URL normalization, lossy dedup keys, variant/trap detection.
+- `scripts/html_parse.py` — lightweight HTML link/canonical/meta extraction.
+- `scripts/crawl_result.py` — the normalized `CrawlResult` (pages, robots, sitemaps,
   link graph, stats). All detectors are pure functions over this structure.
-- `crawler.py` — the bounded crawler and pluggable fetchers (`LiveFetcher`,
+- `scripts/crawler.py` — the bounded crawler and pluggable fetchers (`LiveFetcher`,
   `FixtureFetcher`, `DictFetcher`) plus robots and sitemap parsing.
-- `detectors.py` — the 20 tiered detectors and the tier→Observation mapping.
-- `detect.py` — orchestrator entrypoint: picks a fetcher, runs the crawl,
+- `scripts/detectors.py` — the 20 tiered detectors and the tier→Observation mapping.
+- `scripts/detect.py` — orchestrator entrypoint: picks a fetcher, runs the crawl,
   returns Observations.
 
 ## Safety & limits (enforced by the crawler)

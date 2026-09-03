@@ -73,6 +73,10 @@ def test_every_check_has_specific_template():
     ids = {c["check_id"] for c in catalog["checks"]}
     missing = ids - set(templates.TEMPLATES)
     assert not missing, "checks without a fix template: %s" % sorted(missing)
+    # Absence of schema is not a detector (SKILL.md). Catalog must not advertise
+    # unimplemented identity.product_schema_missing / no_organization_schema.
+    ghosts = {"identity.product_schema_missing", "identity.no_organization_schema"}
+    assert not (ids & ghosts)
 
 
 def test_templates_are_mechanism_specific_not_filler():
@@ -132,6 +136,14 @@ def test_access_blocker_is_high_priority_and_do_first():
     assert sa.priority == Severity.CRITICAL
     assert sa.do_first is True
     assert sa.dependencies == []
+
+
+def test_critical_is_do_first_even_when_effort_is_high():
+    f = mkfinding("render.primary_content_js_only", severity=Severity.CRITICAL,
+                  confidence=Confidence.HIGH)
+    findings, _ = recommend.attach_actions([f], _Ctx())
+    assert findings[0].suggested_action.effort == "high"
+    assert findings[0].suggested_action.do_first is True
 
 
 def test_ranks_are_unique_and_ids_reassigned():
@@ -198,6 +210,14 @@ def test_duplicate_recommendations_are_deduped():
     assert "https://x/one" in where or "https://x/two" in where
 
 
+def test_single_finding_where_names_its_url():
+    # A lone finding's recommendation must name the page it was measured on,
+    # not just generic template guidance.
+    f = mkfinding("identity.jsonld_malformed", scope="https://x/only-page")
+    findings, _ = recommend.attach_actions([f], _Ctx())
+    assert "https://x/only-page" in findings[0].suggested_action.where
+
+
 def test_distinct_checks_not_deduped():
     findings, _ = recommend.attach_actions(
         [mkfinding("identity.jsonld_malformed"), mkfinding("identity.sameas_broken")],
@@ -217,11 +237,28 @@ def test_beyond_defect_present_when_clean():
         assert b.get("priority") in ("critical", "high", "medium")
 
 
-def test_beyond_defect_suppressed_when_concern_has_defect():
-    # An identity defect suppresses the identity-strengthening proactive item.
+def test_beyond_defect_not_wiped_by_unrelated_defect():
+    # Old failure: any crawl/identity finding suppressed llms.txt / entity
+    # paragraph. Additive strengthening must still appear.
     _, beyond = recommend.attach_actions(
-        [mkfinding("identity.jsonld_malformed")], _Ctx(classes=("home", "about")))
-    assert not any("entity paragraph" in b["summary"] for b in beyond)
+        [mkfinding("identity.jsonld_malformed"),
+         mkfinding("access.important_noindex")],
+        _Ctx(classes=("home", "about")))
+    summaries = " ".join(b["summary"] for b in beyond)
+    assert "llms.txt" in summaries
+    assert "entity paragraph" in summaries
+
+
+def test_viewport_does_not_depend_on_important_noindex():
+    # Old failure: every non-access finding listed important_noindex as a
+    # prerequisite, so a zoom-meta fix waited on an unrelated noindex.
+    noindex = mkfinding("access.important_noindex", severity=Severity.HIGH)
+    viewport = mkfinding("engagement.no_viewport_meta", severity=Severity.MEDIUM)
+    findings, _ = recommend.attach_actions([viewport, noindex], _Ctx())
+    by = {f.check_id: f for f in findings}
+    assert by["access.important_noindex"].id not in (
+        by["engagement.no_viewport_meta"].suggested_action.dependencies
+    )
 
 
 def test_beyond_defect_gated_on_page_class():

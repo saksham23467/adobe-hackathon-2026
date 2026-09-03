@@ -27,6 +27,7 @@ import urllib.parse
 from dataclasses import dataclass, field
 from typing import Any, Dict, FrozenSet, Optional, Set, Tuple
 
+from .sampler import is_locale_home_path
 from .schema import Confidence, Severity
 
 
@@ -128,6 +129,7 @@ _EXT_RESOURCE = {
     ".dmg": "download", ".exe": "download", ".msi": "download",
     ".pkg": "download", ".deb": "download", ".rpm": "download",
     ".apk": "download",
+    ".ics": "download", ".vcs": "download", ".ical": "download",
     ".bin": "other_binary", ".wasm": "other_binary", ".map": "other_binary",
     ".json": "api_endpoint",
 }
@@ -182,7 +184,7 @@ _PAGE_PATTERNS = [
     ("category", re.compile(r"/(categor(y|ies)|collections?|tags?|topics?)(/|$)", re.I)),
     ("search", re.compile(r"/(search|find)(/|$)|[?&](q|query|s)=", re.I)),
     ("legal", re.compile(r"/(legal|privacy|terms|tos|cookies?|imprint|gdpr)(/|$)", re.I)),
-    ("account", re.compile(r"/(login|log-in|signin|sign-in|signup|sign-up|account|profile|cart|checkout|auth)(/|$)", re.I)),
+    ("account", re.compile(r"/(login|log-in|signin|sign-in|signup|sign-up|account|profile|cart|bag|basket|checkout|auth)(/|$)", re.I)),
     ("landing_page", re.compile(r"/(lp|landing|campaign|promo|offer|go)(/|$)", re.I)),
     ("error", re.compile(r"/(404|410|error|not-found|notfound)(/|$)", re.I)),
 ]
@@ -350,7 +352,7 @@ def classify_page_type(
         return "error"
     parts = urllib.parse.urlsplit(url)
     path = parts.path or "/"
-    if path in ("", "/"):
+    if path in ("", "/") or is_locale_home_path(path):
         return "homepage"
     blob = path
     if parts.query:

@@ -12,7 +12,8 @@ description: >-
   nav links, inconsistent naming for the same destination, dead-end pages,
   key information (product/pricing/contact) unreachable from the home page, and
   mobile-viewport signals. Not a Lighthouse clone and not subjective visual
-  critique — every finding is backed by an observable DOM fact.
+  critique — every finding is backed by an observable DOM fact. Use when
+  locating where a first-time visitor's journey breaks after acquisition.
 license: MIT
 metadata:
   concern: engagement
@@ -35,13 +36,17 @@ Each detector is tagged with the stage it breaks (`metric.stage`).
 After acquisition. Reads the shared cache (prefers rendered DOM). Read-only,
 deterministic, standard library only.
 
+## Inputs
+- `ctx.cache` page records (prefers rendered HTML; falls back to raw HTML).
+
 ## Procedure (deterministic)
-1. `journey.py` parses every cached page into a `PageView`: title, visible vs
+1. `scripts/journey.py` parses every cached page into a `PageView`: title, visible vs
    hidden `<h1>`, primary-nav vs breadcrumb links, links classified by context
    (nav / header / footer / main), CTAs (action-verb links & buttons), viewport
    meta, blocking overlays (excluding consent banners), and contact affordances.
 2. Pages are wired into a `JourneyModel` with a home→page reachability graph.
-3. `engagedetect.py` runs the tiered detectors and emits Observations.
+3. `scripts/engagedetect.py` runs the tiered detectors and emits Observations.
+4. `scripts/detect.py` is the skill entrypoint over `ctx.cache`.
 
 ## Finding tiers (mapped to confidence)
 - **Confirmed structural issue** (`Confidence.HIGH`): an objective DOM defect —

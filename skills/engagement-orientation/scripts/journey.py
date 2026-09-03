@@ -38,10 +38,19 @@ _KNOWN_ACRONYMS = {"API", "FAQ", "FAQS", "SDK", "CRM", "SEO", "B2B", "B2C",
                    "SAAS", "HR", "IT", "AI", "ML", "ROI", "KPI", "PDF", "URL",
                    "USB", "UI", "UX", "OS", "VR", "AR", "CEO", "CTO", "IOT"}
 _CONSENT_WORDS = ("cookie", "consent", "gdpr", "privacy", "we use cookies")
+_A11Y_SUFFIX = re.compile(
+    r"\s*\((?:opens?(?:\s+in)?(?:\s+a)?\s+new\s+(?:window|tab)|"
+    r"opens?\s+new\s+(?:window|tab))\)\s*$",
+    re.I,
+)
 
 
 def _norm_ws(s: str) -> str:
     return re.sub(r"\s+", " ", s or "").strip()
+
+
+def _norm_nav_label(s: str) -> str:
+    return _norm_ws(_A11Y_SUFFIX.sub("", _norm_ws(s)))
 
 
 @dataclass
@@ -100,7 +109,7 @@ class PageView:
     def nav_dest_labels(self) -> List[Tuple[str, str]]:
         # Primary navigation only — breadcrumb trails legitimately relabel a
         # destination (e.g. "Widget" vs the nav's "Products").
-        return [(l.path, _norm_ws(l.label)) for l in self.internal_links()
+        return [(l.path, _norm_nav_label(l.label)) for l in self.internal_links()
                 if l.in_nav and not l.in_breadcrumb and l.label]
 
     def link_paths(self) -> Set[str]:
@@ -340,7 +349,8 @@ class JourneyModel:
         if getattr(home, "page_class", "") == "home":
             return True
         path = urllib.parse.urlsplit(home.url).path or "/"
-        return path in ("", "/")
+        from audit_common.sampler import is_locale_home_path
+        return path in ("", "/") or is_locale_home_path(path)
 
     def by_class(self, cls: str) -> List[PageView]:
         return [p for p in self.pages.values() if p.page_class == cls]

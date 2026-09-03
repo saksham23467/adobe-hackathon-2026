@@ -1,14 +1,7 @@
-"""Render-only-where-necessary policy.
+"""Which pages look like script-driven shells in the curl HTML.
 
-Headless rendering is the single most expensive optional step in an audit, so it
-must never run on every page. This module decides *which* pages are worth
-rendering and caps the total, so a renderer (when installed) spends its budget
-only where JavaScript plausibly changes what a machine can read.
-
-A page is a render candidate when its initial HTML is a *shell*: little visible
-text but script-driven — exactly the case where the rendered DOM may differ from
-the initial response. Pages that already ship substantial text in the initial
-HTML are never rendered (rendering them cannot change a finding).
+Used to rank empty-shell candidates. No browser is started. Pages that already
+ship substantial text in the HTTP body are not treated as shells.
 
 Pure, deterministic, dependency-free: safe to unit-test and reuse across skills.
 """

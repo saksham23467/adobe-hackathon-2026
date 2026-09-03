@@ -262,8 +262,10 @@ def test_all_new_sections_present():
     rep = presentation.enrich_report(_report([_mk_finding()]))
     for k in ("executive_summary", "overall_score", "discoverability_score",
               "engagement_score", "confidence_summary", "top_priorities",
-              "proactive_opportunities", "crawl_summary", "coverage_summary"):
+              "proactive_opportunities", "coverage_summary"):
         assert k in rep, k
+    assert "crawl_summary" not in rep
+    assert "reading_guide" not in rep
 
 
 def test_top_priorities_are_rank_ordered():
@@ -278,12 +280,22 @@ def test_top_priorities_are_rank_ordered():
     assert ids[0] == "F-002"
 
 
-def test_executive_summary_mentions_score_and_avoids_marketing():
+def test_executive_summary_lists_numbered_actions():
     rep = presentation.enrich_report(_report([_mk_finding()]))
-    es = rep["executive_summary"].lower()
-    assert "/100" in rep["executive_summary"]
+    es = rep["executive_summary"]
+    assert "1. Stop blocking initial content" in es
+    assert "https://x/" in es
     for banned in ("world-class", "cutting-edge", "revolutionary", "best-in-class", "leverage synerg"):
-        assert banned not in es
+        assert banned not in es.lower()
+
+
+def test_top_priorities_include_url_and_evidence():
+    rep = presentation.enrich_report(_report([_mk_finding()]))
+    p = rep["top_priorities"][0]
+    assert p["url"] == "https://x/"
+    assert p["evidence"]
+    assert p["action"]
+    assert "do_first" in p
 
 
 def test_proactive_opportunities_shaped():
